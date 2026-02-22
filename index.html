@@ -671,6 +671,109 @@ nav button .icon { font-size: 1.3rem; }
 }
 
 .settings-btn:hover { border-color: var(--accent-soft); }
+
+/* --- GLOBE VIEW --- */
+.globe-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--surface);
+  touch-action: pan-x pan-y;
+  margin-bottom: 14px;
+}
+
+.globe-container svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.globe-container svg .land {
+  fill: var(--surface2);
+  stroke: var(--bg);
+  stroke-width: 0.3;
+}
+
+.globe-container svg .water {
+  fill: var(--surface);
+}
+
+.globe-container svg .grid-line {
+  stroke: var(--surface2);
+  stroke-width: 0.15;
+  fill: none;
+  opacity: 0.4;
+}
+
+.pin-group { cursor: pointer; }
+
+.pin-dot {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 4px rgba(124, 111, 224, 0.5));
+}
+
+.pin-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.6;
+  opacity: 0.4;
+  transform-origin: center;
+  animation: ping 2s ease-out infinite;
+}
+
+@keyframes ping {
+  0% { r: 2.5; opacity: 0.4; }
+  100% { r: 6; opacity: 0; }
+}
+
+.pin-label {
+  font-family: 'Lexend', sans-serif;
+  font-size: 3px;
+  fill: var(--text);
+  font-weight: 500;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.globe-stats {
+  text-align: center;
+  padding: 12px 0 4px;
+}
+
+.globe-stats .big-number {
+  font-size: 2rem;
+}
+
+.globe-stats .card-label {
+  margin-bottom: 2px;
+}
+
+.visited-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.visited-chip {
+  background: var(--surface2);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+}
+
+.visited-chip .visited-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 6px;
+  vertical-align: middle;
+}
 </style>
 </head>
 <body>
@@ -759,6 +862,21 @@ nav button .icon { font-size: 1.3rem; }
     </div>
   </div>
 
+  <!-- ===== GLOBE VIEW ===== -->
+  <div class="view" id="viewGlobe">
+    <div class="globe-stats">
+      <div class="card-label">places you've been</div>
+      <div class="big-number" id="globeCount">0</div>
+    </div>
+    <div class="globe-container" id="globeContainer"></div>
+    <div class="card">
+      <div class="card-label">visited</div>
+      <div class="visited-list" id="visitedList">
+        <div class="empty" style="padding: 20px; width: 100%;"><div class="emoji">🌍</div>your pins will appear here<br>once you log your first expense on a trip</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== HISTORY VIEW ===== -->
   <div class="view" id="viewHistory">
     <div id="historyList">
@@ -772,6 +890,7 @@ nav button .icon { font-size: 1.3rem; }
   <button class="active" data-view="viewLog"><span class="icon">✏️</span>log</button>
   <button data-view="viewToday"><span class="icon">📊</span>today</button>
   <button data-view="viewWallet"><span class="icon">💳</span>wallet</button>
+  <button data-view="viewGlobe"><span class="icon">🌍</span>globe</button>
   <button data-view="viewTrips"><span class="icon">🗺️</span>trips</button>
   <button data-view="viewHistory"><span class="icon">📋</span>history</button>
 </nav>
@@ -1628,6 +1747,219 @@ function deleteTrip() {
   showToast('trip deleted');
 }
 
+// ============================================================
+//  GLOBE MAP
+// ============================================================
+
+// City coordinates lookup (lat, lng) - covers major travel destinations
+const CITY_COORDS = {
+  // Europe
+  'london': [51.5, -0.1], 'paris': [48.9, 2.3], 'berlin': [52.5, 13.4], 'amsterdam': [52.4, 4.9],
+  'barcelona': [41.4, 2.2], 'madrid': [40.4, -3.7], 'rome': [41.9, 12.5], 'milan': [45.5, 9.2],
+  'prague': [50.1, 14.4], 'vienna': [48.2, 16.4], 'budapest': [47.5, 19.0], 'lisbon': [38.7, -9.1],
+  'porto': [41.2, -8.6], 'dublin': [53.3, -6.3], 'edinburgh': [55.9, -3.2], 'copenhagen': [55.7, 12.6],
+  'stockholm': [59.3, 18.1], 'oslo': [59.9, 10.8], 'helsinki': [60.2, 24.9], 'athens': [37.98, 23.7],
+  'istanbul': [41.0, 29.0], 'zurich': [47.4, 8.5], 'geneva': [46.2, 6.1], 'brussels': [50.8, 4.4],
+  'krakow': [50.1, 19.9], 'warsaw': [52.2, 21.0], 'bucharest': [44.4, 26.1], 'sofia': [42.7, 23.3],
+  'split': [43.5, 16.4], 'dubrovnik': [42.6, 18.1], 'reykjavik': [64.1, -21.9], 'nice': [43.7, 7.3],
+  'florence': [43.8, 11.2], 'venice': [45.4, 12.3], 'munich': [48.1, 11.6], 'naples': [40.9, 14.3],
+  // UK
+  'manchester': [53.5, -2.2], 'birmingham': [52.5, -1.9], 'leeds': [53.8, -1.5], 'glasgow': [55.9, -4.3],
+  'liverpool': [53.4, -3.0], 'bristol': [51.5, -2.6], 'cardiff': [51.5, -3.2], 'belfast': [54.6, -5.9],
+  // Canada
+  'toronto': [43.7, -79.4], 'vancouver': [49.3, -123.1], 'montreal': [45.5, -73.6], 'calgary': [51.0, -114.1],
+  'ottawa': [45.4, -75.7], 'quebec city': [46.8, -71.2], 'halifax': [44.6, -63.6], 'winnipeg': [49.9, -97.1],
+  'edmonton': [53.5, -113.5], 'victoria': [48.4, -123.4],
+  // USA
+  'new york': [40.7, -74.0], 'los angeles': [34.1, -118.2], 'chicago': [41.9, -87.6], 'san francisco': [37.8, -122.4],
+  'miami': [25.8, -80.2], 'las vegas': [36.2, -115.1], 'seattle': [47.6, -122.3], 'boston': [42.4, -71.1],
+  'washington': [38.9, -77.0], 'austin': [30.3, -97.7], 'denver': [39.7, -105.0], 'portland': [45.5, -122.7],
+  'new orleans': [30.0, -90.1], 'nashville': [36.2, -86.8], 'honolulu': [21.3, -157.9], 'san diego': [32.7, -117.2],
+  // Central America & Caribbean
+  'mexico city': [19.4, -99.1], 'cancun': [21.2, -86.8], 'playa del carmen': [20.6, -87.1],
+  'san jose': [9.9, -84.1], 'panama city': [9.0, -79.5], 'havana': [23.1, -82.4],
+  'guatemala city': [14.6, -90.5], 'belize city': [17.5, -88.2],
+  // South America
+  'bogota': [4.7, -74.1], 'medellin': [6.2, -75.6], 'lima': [-12.0, -77.0], 'cusco': [-13.5, -72.0],
+  'buenos aires': [-34.6, -58.4], 'santiago': [-33.4, -70.6], 'rio de janeiro': [-22.9, -43.2],
+  'sao paulo': [-23.5, -46.6], 'cartagena': [10.4, -75.5], 'quito': [-0.2, -78.5],
+  // Southeast Asia
+  'bangkok': [13.8, 100.5], 'chiang mai': [18.8, 98.98], 'phuket': [7.9, 98.4],
+  'ho chi minh city': [10.8, 106.6], 'hanoi': [21.0, 105.8], 'da nang': [16.1, 108.2],
+  'singapore': [1.4, 103.8], 'kuala lumpur': [3.1, 101.7], 'penang': [5.4, 100.3],
+  'bali': [-8.3, 115.1], 'jakarta': [-6.2, 106.8], 'manila': [14.6, 121.0],
+  'phnom penh': [11.6, 104.9], 'siem reap': [13.4, 103.9], 'vientiane': [18.0, 102.6],
+  'yangon': [16.9, 96.2],
+  // East Asia
+  'tokyo': [35.7, 139.7], 'osaka': [34.7, 135.5], 'kyoto': [35.0, 135.8], 'seoul': [37.6, 127.0],
+  'busan': [35.2, 129.1], 'beijing': [39.9, 116.4], 'shanghai': [31.2, 121.5], 'hong kong': [22.3, 114.2],
+  'taipei': [25.0, 121.5],
+  // South Asia
+  'delhi': [28.6, 77.2], 'mumbai': [19.1, 72.9], 'goa': [15.5, 74.0], 'kathmandu': [27.7, 85.3],
+  'colombo': [6.9, 79.9], 'dhaka': [23.8, 90.4],
+  // Middle East
+  'dubai': [25.2, 55.3], 'abu dhabi': [24.5, 54.7], 'doha': [25.3, 51.5],
+  'tel aviv': [32.1, 34.8], 'jerusalem': [31.8, 35.2], 'amman': [31.9, 35.9],
+  'beirut': [33.9, 35.5], 'muscat': [23.6, 58.5],
+  // Africa
+  'cairo': [30.0, 31.2], 'marrakech': [31.6, -8.0], 'cape town': [-33.9, 18.4],
+  'nairobi': [-1.3, 36.8], 'zanzibar': [-6.2, 39.2], 'accra': [5.6, -0.2],
+  'lagos': [6.5, 3.4], 'addis ababa': [9.0, 38.7], 'dar es salaam': [-6.8, 39.3],
+  'casablanca': [33.6, -7.6], 'tunis': [36.8, 10.2], 'dakar': [14.7, -17.5],
+  'kampala': [0.3, 32.6], 'kigali': [-1.9, 30.1], 'johannesburg': [-26.2, 28.0],
+  // Oceania
+  'sydney': [-33.9, 151.2], 'melbourne': [-37.8, 145.0], 'brisbane': [-27.5, 153.0],
+  'auckland': [-36.8, 174.8], 'wellington': [-41.3, 174.8], 'perth': [-31.9, 115.9],
+  'queenstown': [-45.0, 168.7], 'fiji': [-18.1, 178.0],
+};
+
+// Simplified world map paths (Natural Earth-inspired, equirectangular)
+const WORLD_PATHS = [
+  // North America
+  "M 52 42 L 54 38 58 36 62 34 68 32 72 33 76 32 80 30 82 28 84 30 86 32 84 35 80 36 78 38 76 42 72 44 68 48 64 50 60 52 56 50 52 46 Z",
+  // Central America
+  "M 60 52 L 62 54 64 56 66 58 68 56 70 54 72 56 70 58 66 60 62 58 60 56 Z",
+  // South America
+  "M 68 62 L 72 60 76 58 80 60 82 64 84 68 82 72 80 78 78 82 74 86 70 84 68 80 66 74 68 68 Z",
+  // Europe
+  "M 128 28 L 132 26 136 28 140 26 144 28 148 30 146 32 142 34 138 36 134 38 130 36 128 34 126 30 Z",
+  // UK & Ireland
+  "M 122 28 L 124 26 126 28 124 30 122 30 Z M 120 28 L 121 27 122 28 121 29 Z",
+  // Scandinavia
+  "M 132 18 L 136 16 140 18 138 22 134 24 130 22 Z",
+  // Africa
+  "M 124 44 L 128 42 134 44 140 46 144 50 146 56 144 62 140 68 136 72 132 74 128 72 124 68 120 64 118 58 120 52 122 48 Z",
+  // Middle East
+  "M 146 36 L 150 34 154 36 156 40 152 42 148 44 144 42 146 38 Z",
+  // Russia / North Asia
+  "M 148 18 L 156 16 168 14 180 16 192 18 200 20 204 22 200 26 192 28 180 30 168 28 156 26 148 24 Z",
+  // South Asia
+  "M 156 42 L 160 40 164 42 168 44 166 48 162 52 158 50 156 46 Z",
+  // Southeast Asia
+  "M 170 48 L 174 46 178 48 180 52 176 56 172 54 170 50 Z",
+  // East Asia (China, Japan, Korea)
+  "M 172 30 L 178 28 184 30 188 34 186 38 182 40 178 42 174 40 170 36 172 32 Z",
+  // Japan
+  "M 190 32 L 192 30 194 32 192 36 190 34 Z",
+  // Indonesia / Philippines
+  "M 176 58 L 180 56 184 58 188 60 186 62 182 64 178 62 Z",
+  // Australia
+  "M 184 72 L 192 68 200 70 204 74 202 80 196 82 190 80 186 76 Z",
+  // New Zealand
+  "M 210 82 L 212 80 214 82 212 86 210 84 Z",
+  // Madagascar
+  "M 146 70 L 148 68 150 70 148 74 146 72 Z",
+  // Greenland
+  "M 86 14 L 92 10 98 12 100 16 96 20 90 18 Z",
+  // Iceland
+  "M 112 18 L 116 16 118 18 116 20 112 19 Z",
+];
+
+function getVisitedTrips() {
+  // A trip is "visited" if it has at least 1 expense and a location
+  return state.trips.filter(t => {
+    const hasExpenses = state.expenses.some(e => e.tripId === t.id);
+    return hasExpenses && t.location;
+  });
+}
+
+function getCityCoords(location) {
+  if (!location) return null;
+  const key = location.toLowerCase().trim();
+  if (CITY_COORDS[key]) return CITY_COORDS[key];
+  // Try partial match
+  for (const [city, coords] of Object.entries(CITY_COORDS)) {
+    if (key.includes(city) || city.includes(key)) return coords;
+  }
+  return null;
+}
+
+function latLngToXY(lat, lng) {
+  // Equirectangular projection: map -180..180 → 10..230, 90..-90 → 5..95
+  const x = ((lng + 180) / 360) * 220 + 10;
+  const y = ((90 - lat) / 180) * 90 + 5;
+  return [x, y];
+}
+
+function renderGlobe() {
+  const container = $('globeContainer');
+  const visited = getVisitedTrips();
+  const visitedWithCoords = visited.map(t => {
+    const coords = getCityCoords(t.location);
+    return coords ? { trip: t, coords } : null;
+  }).filter(Boolean);
+
+  $('globeCount').textContent = visitedWithCoords.length;
+
+  // Build SVG
+  let svg = `<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Water background
+  svg += `<rect class="water" x="0" y="0" width="240" height="100" rx="4"/>`;
+
+  // Grid lines
+  for (let lat = -60; lat <= 80; lat += 30) {
+    const y = ((90 - lat) / 180) * 90 + 5;
+    svg += `<line class="grid-line" x1="10" y1="${y}" x2="230" y2="${y}"/>`;
+  }
+  for (let lng = -150; lng <= 180; lng += 30) {
+    const x = ((lng + 180) / 360) * 220 + 10;
+    svg += `<line class="grid-line" x1="${x}" y1="5" x2="${x}" y2="95"/>`;
+  }
+
+  // Land masses
+  WORLD_PATHS.forEach(path => {
+    svg += `<path class="land" d="${path}"/>`;
+  });
+
+  // Pins for visited places
+  visitedWithCoords.forEach(({ trip, coords }) => {
+    const [x, y] = latLngToXY(coords[0], coords[1]);
+    const totalSpent = state.expenses.filter(e => e.tripId === trip.id).reduce((s, e) => s + e.amount, 0);
+    const curr = trip.currency || '$';
+    svg += `
+      <g class="pin-group">
+        <circle class="pin-ring" cx="${x}" cy="${y}" r="2.5"/>
+        <circle class="pin-dot" cx="${x}" cy="${y}" r="1.8"/>
+        <text class="pin-label" x="${x}" y="${y - 4}">${escHtml(trip.location)}</text>
+      </g>
+    `;
+  });
+
+  svg += `</svg>`;
+  container.innerHTML = svg;
+
+  // Visited list chips
+  const listEl = $('visitedList');
+  if (visitedWithCoords.length === 0) {
+    const unknownLocations = visited.filter(t => !getCityCoords(t.location));
+    if (unknownLocations.length > 0) {
+      listEl.innerHTML = unknownLocations.map(t =>
+        `<div class="visited-chip"><span class="visited-dot" style="background: var(--amber);"></span>${escHtml(t.location)} (not on map yet)</div>`
+      ).join('') + '<div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 8px; width: 100%;">tip: use common city names for your trip location</div>';
+    } else {
+      listEl.innerHTML = '<div class="empty" style="padding: 20px; width: 100%;"><div class="emoji">🌍</div>your pins will appear here<br>once you log your first expense on a trip</div>';
+    }
+    return;
+  }
+
+  let chips = visitedWithCoords.map(({ trip }) => {
+    const totalSpent = state.expenses.filter(e => e.tripId === trip.id).reduce((s, e) => s + e.amount, 0);
+    const curr = trip.currency || '$';
+    return `<div class="visited-chip"><span class="visited-dot"></span>${escHtml(trip.location)} · ${curr}${formatMoney(totalSpent)}</div>`;
+  }).join('');
+
+  // Also show any visited trips whose location isn't recognized
+  const unknownLocations = visited.filter(t => !getCityCoords(t.location));
+  if (unknownLocations.length > 0) {
+    chips += unknownLocations.map(t =>
+      `<div class="visited-chip"><span class="visited-dot" style="background: var(--amber);"></span>${escHtml(t.location)}</div>`
+    ).join('');
+  }
+
+  listEl.innerHTML = chips;
+}
+
 // --- Export / Import ---
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -1682,6 +2014,7 @@ function renderAll() {
   renderWeekGrid();
   renderAccounts();
   renderTransactions();
+  renderGlobe();
 }
 
 function refreshAll() {
@@ -1693,6 +2026,7 @@ function refreshAll() {
   renderWeekGrid();
   renderAccounts();
   renderTransactions();
+  renderGlobe();
 }
 
 // --- Wire up events ---
