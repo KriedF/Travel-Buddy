@@ -1344,7 +1344,8 @@ nav button .icon { font-size: 1.3rem; }
 
     <div class="settings-section">
       <div class="section-title">your data</div>
-      <button class="settings-btn" id="exportBtn">📦 export all data (JSON)</button>
+      <button class="settings-btn" id="exportCsvBtn">📊 download expenses (CSV for Google Sheets)</button>
+      <button class="settings-btn" id="exportBtn">📦 export all data (JSON backup)</button>
       <button class="settings-btn" id="importBtn">📂 import data</button>
       <input type="file" id="importFile" accept=".json" style="display:none">
     </div>
@@ -3446,6 +3447,49 @@ function deleteCountdown() {
   showToast('countdown removed');
 }
 
+// --- CSV Export ---
+function exportCsv() {
+  if (state.expenses.length === 0) { showToast('no expenses to export'); return; }
+
+  const tripMap = {};
+  state.trips.forEach(t => { tripMap[t.id] = t; });
+  const acctMap = {};
+  (state.accounts || []).forEach(a => { acctMap[a.id] = a; });
+
+  const csvEscape = (val) => {
+    const s = String(val == null ? '' : val);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+
+  const header = ['Date', 'Trip', 'Location', 'Category', 'Note', 'Amount', 'Currency', 'Account', 'Recurring'];
+  const rows = state.expenses.map(e => {
+    const trip = tripMap[e.tripId] || {};
+    const acct = acctMap[e.accountId] || {};
+    const cat = getCategoryById(e.category);
+    return [
+      e.date || '',
+      trip.name || '',
+      trip.location || '',
+      cat ? cat.label : e.category,
+      e.note || '',
+      e.amount || 0,
+      trip.currency || '$',
+      acct.name || '',
+      e.recurring ? 'yes' : '',
+    ].map(csvEscape).join(',');
+  });
+
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'travelbuddy-expenses-' + todayStr() + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded — open in Google Sheets');
+}
+
 // --- Export / Import ---
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -3571,6 +3615,7 @@ $('countdownDeleteBtn').addEventListener('click', deleteCountdown);
 $('countdownModal').addEventListener('click', (e) => { if (e.target === $('countdownModal')) closeCountdownModal(); });
 
 // Export / Import
+$('exportCsvBtn').addEventListener('click', exportCsv);
 $('exportBtn').addEventListener('click', exportData);
 $('importBtn').addEventListener('click', () => $('importFile').click());
 $('importFile').addEventListener('change', (e) => {
