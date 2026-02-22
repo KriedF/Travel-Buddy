@@ -106,14 +106,14 @@ nav button {
   font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.06em;
-  padding: 8px 14px;
+  padding: 8px 10px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   transition: color 0.2s;
-  min-width: 62px;
+  min-width: 50px;
 }
 
 nav button.active { color: var(--accent); }
@@ -973,6 +973,149 @@ nav button .icon { font-size: 1.3rem; }
   text-align: right;
 }
 
+/* --- DATES VIEW (Visa + Countdowns) --- */
+.visa-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.visa-card:hover { border-color: var(--accent-soft); }
+
+.visa-card.visa-urgent { border-color: var(--amber); }
+.visa-card.visa-danger { border-color: var(--rose); }
+.visa-card.visa-expired { opacity: 0.5; }
+
+.visa-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  transition: width 0.5s ease;
+}
+
+.visa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.visa-country {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.visa-type {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  background: var(--surface2);
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.visa-countdown {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.visa-countdown.warn { color: var(--amber); }
+.visa-countdown.danger { color: var(--rose); }
+.visa-countdown.safe { color: var(--green); }
+.visa-countdown.expired { color: var(--text-dim); }
+
+.visa-dates {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  display: flex;
+  gap: 16px;
+}
+
+.visa-alert {
+  font-size: 0.78rem;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(232, 184, 109, 0.1);
+  color: var(--amber);
+}
+
+.visa-alert.danger-alert {
+  background: rgba(212, 120, 156, 0.1);
+  color: var(--rose);
+}
+
+/* Countdown items */
+.countdown-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.countdown-card:hover { border-color: var(--accent-soft); }
+.countdown-card.countdown-past { opacity: 0.45; }
+
+.countdown-emoji {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: var(--surface2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.countdown-label {
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+
+.countdown-date {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.countdown-number {
+  font-size: 1.6rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.countdown-number .countdown-unit {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  display: block;
+}
+
+.countdown-number.countdown-today { color: var(--accent); }
+.countdown-number.countdown-soon { color: var(--amber); }
+.countdown-number.countdown-passed { color: var(--text-dim); }
+
 /* --- GLOBE VIEW --- */
 #viewGlobe {
   padding-top: 0 !important;
@@ -1224,6 +1367,22 @@ nav button .icon { font-size: 1.3rem; }
     </div>
   </div>
 
+  <!-- ===== DATES VIEW (Visa + Countdowns) ===== -->
+  <div class="view" id="viewDates">
+    <div class="section-title">visa tracker</div>
+    <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 10px;">🇬🇧 auto-fills for UK citizens · always double-check <a href="https://www.gov.uk/foreign-travel-advice" target="_blank" style="color: var(--accent);">gov.uk</a></div>
+    <div id="visaList">
+      <div class="empty"><div class="emoji">🛂</div>no visas tracked yet<br>stay stress-free about your dates</div>
+    </div>
+    <button class="new-trip-btn" id="newVisaBtn">+ add visa</button>
+
+    <div class="section-title">countdowns</div>
+    <div id="countdownList">
+      <div class="empty"><div class="emoji">📅</div>no countdowns yet<br>track flights, visits, and important dates</div>
+    </div>
+    <button class="new-trip-btn" id="newCountdownBtn">+ add countdown</button>
+  </div>
+
   <!-- ===== HISTORY VIEW ===== -->
   <div class="view" id="viewHistory">
     <div id="historyList">
@@ -1238,6 +1397,7 @@ nav button .icon { font-size: 1.3rem; }
   <button data-view="viewToday"><span class="icon">📊</span>today</button>
   <button data-view="viewWallet"><span class="icon">💳</span>wallet</button>
   <button data-view="viewGlobe"><span class="icon">🌍</span>globe</button>
+  <button data-view="viewDates"><span class="icon">⏳</span>dates</button>
   <button data-view="viewTrips"><span class="icon">🗺️</span>trips</button>
   <button data-view="viewHistory"><span class="icon">📋</span>history</button>
 </nav>
@@ -1324,6 +1484,67 @@ nav button .icon { font-size: 1.3rem; }
   </div>
 </div>
 
+<!-- MODAL: Visa -->
+<div class="modal-overlay" id="visaModal">
+  <div class="modal-sheet">
+    <h2 id="visaModalTitle">add visa</h2>
+    <div class="form-group">
+      <label>country</label>
+      <input type="text" id="visaCountry" placeholder="e.g. Albania" maxlength="40">
+      <div id="visaAutoHint" style="font-size: 0.7rem; color: var(--green); margin-top: 4px; min-height: 1em;"></div>
+    </div>
+    <div class="form-group">
+      <label>visa type</label>
+      <input type="text" id="visaType" placeholder="e.g. tourist, digital nomad, work" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>entry date</label>
+      <input type="date" id="visaEntry">
+    </div>
+    <div class="form-group">
+      <label>allowed days</label>
+      <input type="number" id="visaDays" placeholder="e.g. 90" inputmode="numeric" min="1" max="3650">
+    </div>
+    <div class="form-group">
+      <label>notes (optional)</label>
+      <input type="text" id="visaNotes" placeholder="e.g. can extend at border" maxlength="60">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="visaCancelBtn">cancel</button>
+      <button class="btn-primary" id="visaSaveBtn">save</button>
+    </div>
+    <div class="btn-row" id="visaDeleteRow" style="display:none; margin-top: 8px;">
+      <button class="btn-secondary" id="visaDeleteBtn" style="color: var(--rose);">delete this visa</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Countdown -->
+<div class="modal-overlay" id="countdownModal">
+  <div class="modal-sheet">
+    <h2 id="countdownModalTitle">add countdown</h2>
+    <div class="form-group">
+      <label>what's coming up?</label>
+      <input type="text" id="countdownLabel" placeholder="e.g. flight to Lisbon" maxlength="50">
+    </div>
+    <div class="form-group">
+      <label>emoji</label>
+      <input type="text" id="countdownEmoji" placeholder="✈️" maxlength="4" value="📅">
+    </div>
+    <div class="form-group">
+      <label>date</label>
+      <input type="date" id="countdownDate">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="countdownCancelBtn">cancel</button>
+      <button class="btn-primary" id="countdownSaveBtn">save</button>
+    </div>
+    <div class="btn-row" id="countdownDeleteRow" style="display:none; margin-top: 8px;">
+      <button class="btn-secondary" id="countdownDeleteBtn" style="color: var(--rose);">delete</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1378,6 +1599,8 @@ function defaultState() {
     expenses: [],
     accounts: DEFAULT_ACCOUNTS.map(a => ({ ...a, id: uid(), created: Date.now() })),
     transactions: [], // { id, accountId, amount, type: 'deposit'|'expense', note, date, timestamp, expenseId? }
+    visas: [],
+    countdowns: [],
     activeTrip: null,
   };
 }
@@ -1396,6 +1619,9 @@ function loadState() {
       if (s.accounts && !s.accounts.find(a => a.name === 'Cash')) {
         s.accounts.push({ id: uid(), name: 'Cash', balance: 0, currency: '$', created: Date.now() });
       }
+      // Migration: add visas + countdowns if missing
+      if (!s.visas) s.visas = [];
+      if (!s.countdowns) s.countdowns = [];
       return s;
     }
   } catch (e) {}
@@ -2653,6 +2879,434 @@ function renderTripComparison() {
 
 // Notes are stored as trip.notes in each trip object
 
+// ============================================================
+//  VISA TRACKER
+// ============================================================
+
+// UK/British citizen visa-free durations (days) — common destinations
+// Source: gov.uk foreign travel advice + visa indexes, as of early 2026
+// Always double-check with gov.uk before relying on these!
+const UK_VISA_INFO = {
+  // Europe — Schengen (90 days in 180-day period)
+  'albania': { days: 90, type: 'visa free 90/180' },
+  'austria': { days: 90, type: 'Schengen 90/180' },
+  'belgium': { days: 90, type: 'Schengen 90/180' },
+  'bosnia': { days: 90, type: 'visa free' },
+  'bosnia and herzegovina': { days: 90, type: 'visa free' },
+  'bulgaria': { days: 90, type: 'visa free' },
+  'croatia': { days: 90, type: 'Schengen 90/180' },
+  'czech republic': { days: 90, type: 'Schengen 90/180' },
+  'czechia': { days: 90, type: 'Schengen 90/180' },
+  'denmark': { days: 90, type: 'Schengen 90/180' },
+  'estonia': { days: 90, type: 'Schengen 90/180' },
+  'finland': { days: 90, type: 'Schengen 90/180' },
+  'france': { days: 90, type: 'Schengen 90/180' },
+  'germany': { days: 90, type: 'Schengen 90/180' },
+  'greece': { days: 90, type: 'Schengen 90/180' },
+  'hungary': { days: 90, type: 'Schengen 90/180' },
+  'iceland': { days: 90, type: 'Schengen 90/180' },
+  'ireland': { days: 365, type: 'Common Travel Area' },
+  'italy': { days: 90, type: 'Schengen 90/180' },
+  'kosovo': { days: 90, type: 'visa free' },
+  'latvia': { days: 90, type: 'Schengen 90/180' },
+  'lithuania': { days: 90, type: 'Schengen 90/180' },
+  'luxembourg': { days: 90, type: 'Schengen 90/180' },
+  'malta': { days: 90, type: 'Schengen 90/180' },
+  'moldova': { days: 90, type: 'visa free' },
+  'montenegro': { days: 90, type: 'visa free' },
+  'netherlands': { days: 90, type: 'Schengen 90/180' },
+  'north macedonia': { days: 90, type: 'visa free' },
+  'norway': { days: 90, type: 'Schengen 90/180' },
+  'poland': { days: 90, type: 'Schengen 90/180' },
+  'portugal': { days: 90, type: 'Schengen 90/180' },
+  'romania': { days: 90, type: 'visa free' },
+  'serbia': { days: 90, type: 'visa free' },
+  'slovakia': { days: 90, type: 'Schengen 90/180' },
+  'slovenia': { days: 90, type: 'Schengen 90/180' },
+  'spain': { days: 90, type: 'Schengen 90/180' },
+  'sweden': { days: 90, type: 'Schengen 90/180' },
+  'switzerland': { days: 90, type: 'Schengen 90/180' },
+  'turkey': { days: 90, type: 'visa free' },
+  'ukraine': { days: 90, type: 'visa free' },
+  // Americas
+  'argentina': { days: 90, type: 'visa free' },
+  'bahamas': { days: 90, type: 'visa free' },
+  'barbados': { days: 180, type: 'visa free' },
+  'belize': { days: 30, type: 'visa free' },
+  'bermuda': { days: 180, type: 'visa free' },
+  'bolivia': { days: 90, type: 'visa free' },
+  'brazil': { days: 90, type: 'visa free' },
+  'canada': { days: 180, type: 'eTA required' },
+  'chile': { days: 90, type: 'visa free' },
+  'colombia': { days: 90, type: 'visa free' },
+  'costa rica': { days: 90, type: 'visa free' },
+  'cuba': { days: 30, type: 'tourist card required' },
+  'dominican republic': { days: 30, type: 'visa free' },
+  'ecuador': { days: 90, type: 'visa free' },
+  'el salvador': { days: 90, type: 'visa free' },
+  'guatemala': { days: 90, type: 'visa free' },
+  'jamaica': { days: 90, type: 'visa free' },
+  'mexico': { days: 180, type: 'visa free' },
+  'nicaragua': { days: 90, type: 'visa free' },
+  'panama': { days: 180, type: 'visa free' },
+  'paraguay': { days: 90, type: 'visa free' },
+  'peru': { days: 183, type: 'visa free' },
+  'trinidad': { days: 90, type: 'visa free' },
+  'trinidad and tobago': { days: 90, type: 'visa free' },
+  'united states': { days: 90, type: 'ESTA/VWP' },
+  'usa': { days: 90, type: 'ESTA/VWP' },
+  'us': { days: 90, type: 'ESTA/VWP' },
+  'uruguay': { days: 90, type: 'visa free' },
+  // Asia
+  'cambodia': { days: 30, type: 'visa on arrival' },
+  'china': { days: 30, type: 'visa free (until Dec 2026)' },
+  'georgia': { days: 365, type: 'visa free' },
+  'hong kong': { days: 180, type: 'visa free' },
+  'india': { days: 30, type: 'eVisa required' },
+  'indonesia': { days: 30, type: 'visa on arrival' },
+  'israel': { days: 90, type: 'visa free' },
+  'japan': { days: 90, type: 'visa free' },
+  'jordan': { days: 30, type: 'visa on arrival' },
+  'kazakhstan': { days: 30, type: 'visa free' },
+  'kyrgyzstan': { days: 60, type: 'visa free' },
+  'laos': { days: 30, type: 'visa on arrival' },
+  'lebanon': { days: 30, type: 'visa on arrival' },
+  'malaysia': { days: 90, type: 'visa free' },
+  'maldives': { days: 30, type: 'visa on arrival' },
+  'mongolia': { days: 30, type: 'visa free' },
+  'myanmar': { days: 28, type: 'eVisa required' },
+  'nepal': { days: 90, type: 'visa on arrival' },
+  'oman': { days: 14, type: 'eVisa required' },
+  'philippines': { days: 30, type: 'visa free' },
+  'qatar': { days: 30, type: 'visa free' },
+  'singapore': { days: 90, type: 'visa free' },
+  'south korea': { days: 90, type: 'visa free' },
+  'korea': { days: 90, type: 'visa free' },
+  'sri lanka': { days: 30, type: 'eVisa required' },
+  'taiwan': { days: 90, type: 'visa free' },
+  'thailand': { days: 60, type: 'visa free (TDAC required)' },
+  'uae': { days: 30, type: 'visa free' },
+  'united arab emirates': { days: 30, type: 'visa free' },
+  'dubai': { days: 30, type: 'visa free (UAE)' },
+  'uzbekistan': { days: 30, type: 'visa free' },
+  'vietnam': { days: 45, type: 'visa free' },
+  // Africa
+  'botswana': { days: 90, type: 'visa free' },
+  'cape verde': { days: 30, type: 'visa on arrival' },
+  'egypt': { days: 30, type: 'visa on arrival' },
+  'ethiopia': { days: 30, type: 'eVisa required' },
+  'kenya': { days: 90, type: 'eVisa required' },
+  'madagascar': { days: 30, type: 'visa on arrival' },
+  'mauritius': { days: 90, type: 'visa free' },
+  'morocco': { days: 90, type: 'visa free' },
+  'mozambique': { days: 30, type: 'visa on arrival' },
+  'rwanda': { days: 30, type: 'visa on arrival' },
+  'seychelles': { days: 90, type: 'visa free' },
+  'south africa': { days: 90, type: 'visa free' },
+  'tanzania': { days: 90, type: 'visa on arrival' },
+  'tunisia': { days: 90, type: 'visa free' },
+  'uganda': { days: 90, type: 'eVisa required' },
+  'zanzibar': { days: 90, type: 'visa on arrival (Tanzania)' },
+  'zambia': { days: 90, type: 'visa on arrival' },
+  // Oceania
+  'australia': { days: 90, type: 'eVisitor required' },
+  'fiji': { days: 120, type: 'visa free' },
+  'new zealand': { days: 180, type: 'visa free (NZeTA)' },
+};
+
+function lookupUkVisa(country) {
+  if (!country) return null;
+  const key = country.toLowerCase().trim();
+  if (UK_VISA_INFO[key]) return UK_VISA_INFO[key];
+  // Partial match
+  for (const [name, info] of Object.entries(UK_VISA_INFO)) {
+    if (key.includes(name) || name.includes(key)) return info;
+  }
+  return null;
+}
+
+let editingVisaId = null;
+
+function renderVisas() {
+  const container = $('visaList');
+
+  if (!state.visas || state.visas.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="emoji">🛂</div>no visas tracked yet<br>stay stress-free about your dates</div>';
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  container.innerHTML = state.visas
+    .map(v => {
+      const entry = new Date(v.entryDate + 'T00:00:00');
+      const exitDate = new Date(entry);
+      exitDate.setDate(entry.getDate() + (v.allowedDays || 90));
+
+      const daysUsed = Math.floor((today - entry) / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.floor((exitDate - today) / (1000 * 60 * 60 * 24));
+      const totalDays = v.allowedDays || 90;
+      const pctUsed = Math.min(100, Math.max(0, (daysUsed / totalDays) * 100));
+
+      const isExpired = daysLeft < 0;
+      const isDanger = !isExpired && daysLeft <= 7;
+      const isUrgent = !isExpired && !isDanger && daysLeft <= 14;
+
+      let countdownClass = 'safe';
+      let cardClass = '';
+      if (isExpired) { countdownClass = 'expired'; cardClass = 'visa-expired'; }
+      else if (isDanger) { countdownClass = 'danger'; cardClass = 'visa-danger'; }
+      else if (isUrgent) { countdownClass = 'warn'; cardClass = 'visa-urgent'; }
+
+      let barColor = 'var(--green)';
+      if (pctUsed > 85) barColor = 'var(--rose)';
+      else if (pctUsed > 65) barColor = 'var(--amber)';
+      else if (pctUsed > 40) barColor = 'var(--blue)';
+
+      const entryStr = entry.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const exitStr = exitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      let alertHtml = '';
+      if (isDanger) {
+        alertHtml = `<div class="visa-alert danger-alert">⚠️ ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left — time to make a plan</div>`;
+      } else if (isUrgent) {
+        alertHtml = `<div class="visa-alert">⏰ ${daysLeft} days left — heads up</div>`;
+      }
+
+      return `
+        <div class="visa-card ${cardClass}" data-visa-id="${v.id}">
+          <div class="visa-header">
+            <div class="visa-country">${escHtml(v.country)}</div>
+            <div class="visa-type">${escHtml(v.visaType || 'tourist')}</div>
+          </div>
+          <div class="visa-countdown ${countdownClass}">
+            ${isExpired ? 'expired' : daysLeft + ' days left'}
+          </div>
+          <div class="visa-dates">
+            <span>in: ${entryStr}</span>
+            <span>out by: ${exitStr}</span>
+            <span>${daysUsed} of ${totalDays} days used</span>
+          </div>
+          ${v.notes ? `<div style="font-size: 0.76rem; color: var(--text-dim); margin-top: 6px; font-style: italic;">${escHtml(v.notes)}</div>` : ''}
+          ${alertHtml}
+          <div class="visa-progress" style="width: ${pctUsed}%; background: ${barColor};"></div>
+        </div>
+      `;
+    })
+    .join('');
+
+  container.querySelectorAll('.visa-card').forEach(card => {
+    card.addEventListener('click', () => openVisaModal(card.dataset.visaId));
+  });
+}
+
+function openVisaModal(visaId = null) {
+  editingVisaId = visaId;
+  const visa = visaId ? (state.visas || []).find(v => v.id === visaId) : null;
+
+  $('visaModalTitle').textContent = visa ? 'edit visa' : 'add visa';
+  $('visaCountry').value = visa ? visa.country : '';
+  $('visaType').value = visa ? (visa.visaType || '') : 'tourist';
+  $('visaEntry').value = visa ? visa.entryDate : todayStr();
+  $('visaDays').value = visa ? visa.allowedDays : '90';
+  $('visaNotes').value = visa ? (visa.notes || '') : '';
+  $('visaDeleteRow').style.display = visa ? 'flex' : 'none';
+  $('visaModal').classList.add('show');
+
+  // Auto-fill from UK lookup when typing country
+  $('visaAutoHint').textContent = '';
+  $('visaCountry').oninput = () => {
+    const info = lookupUkVisa($('visaCountry').value);
+    if (info) {
+      if (!visa) { // Only auto-fill values for new visas
+        $('visaDays').value = info.days;
+        $('visaType').value = info.type;
+      }
+      $('visaAutoHint').textContent = `🇬🇧 UK citizens: ${info.days} days — ${info.type}`;
+    } else {
+      $('visaAutoHint').textContent = $('visaCountry').value.length > 2 ? 'not in database — check gov.uk' : '';
+    }
+  };
+}
+
+function closeVisaModal() {
+  $('visaModal').classList.remove('show');
+  editingVisaId = null;
+}
+
+function saveVisa() {
+  const country = $('visaCountry').value.trim();
+  if (!country) { showToast('which country?'); return; }
+
+  const visaType = $('visaType').value.trim() || 'tourist';
+  const entryDate = $('visaEntry').value;
+  if (!entryDate) { showToast('when did you enter?'); return; }
+
+  const allowedDays = parseInt($('visaDays').value) || 90;
+  const notes = $('visaNotes').value.trim();
+
+  if (!state.visas) state.visas = [];
+
+  if (editingVisaId) {
+    const visa = state.visas.find(v => v.id === editingVisaId);
+    if (visa) {
+      visa.country = country;
+      visa.visaType = visaType;
+      visa.entryDate = entryDate;
+      visa.allowedDays = allowedDays;
+      visa.notes = notes;
+    }
+  } else {
+    state.visas.push({
+      id: uid(), country, visaType, entryDate, allowedDays, notes, created: Date.now(),
+    });
+  }
+
+  saveState();
+  closeVisaModal();
+  refreshAll();
+  showToast(editingVisaId ? 'visa updated' : 'visa added');
+}
+
+function deleteVisa() {
+  if (!editingVisaId) return;
+  state.visas = state.visas.filter(v => v.id !== editingVisaId);
+  saveState();
+  closeVisaModal();
+  refreshAll();
+  showToast('visa removed');
+}
+
+// ============================================================
+//  COUNTDOWN COLLECTION
+// ============================================================
+
+let editingCountdownId = null;
+
+function renderCountdowns() {
+  const container = $('countdownList');
+
+  if (!state.countdowns || state.countdowns.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="emoji">📅</div>no countdowns yet<br>track flights, visits, and important dates</div>';
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Sort: upcoming first (by days remaining asc), then past
+  const sorted = [...state.countdowns].sort((a, b) => {
+    const dA = new Date(a.date + 'T00:00:00') - today;
+    const dB = new Date(b.date + 'T00:00:00') - today;
+    // Upcoming first, then past (most recent past first)
+    if (dA >= 0 && dB >= 0) return dA - dB;
+    if (dA < 0 && dB < 0) return dB - dA;
+    return dA >= 0 ? -1 : 1;
+  });
+
+  container.innerHTML = sorted.map(c => {
+    const target = new Date(c.date + 'T00:00:00');
+    const daysLeft = Math.floor((target - today) / (1000 * 60 * 60 * 24));
+    const isPast = daysLeft < 0;
+    const isToday = daysLeft === 0;
+    const isSoon = !isPast && !isToday && daysLeft <= 3;
+
+    let numberClass = '';
+    if (isPast) numberClass = 'countdown-passed';
+    else if (isToday) numberClass = 'countdown-today';
+    else if (isSoon) numberClass = 'countdown-soon';
+
+    const dateStr = target.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    let numberText, unitText;
+    if (isToday) {
+      numberText = 'today';
+      unitText = '✨';
+    } else if (isPast) {
+      numberText = Math.abs(daysLeft);
+      unitText = 'days ago';
+    } else {
+      numberText = daysLeft;
+      unitText = daysLeft === 1 ? 'day' : 'days';
+    }
+
+    return `
+      <div class="countdown-card ${isPast ? 'countdown-past' : ''}" data-cd-id="${c.id}">
+        <div class="countdown-emoji">${c.emoji || '📅'}</div>
+        <div class="countdown-info">
+          <div class="countdown-label">${escHtml(c.label)}</div>
+          <div class="countdown-date">${dateStr}</div>
+        </div>
+        <div class="countdown-number ${numberClass}">
+          ${numberText}
+          <span class="countdown-unit">${unitText}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.countdown-card').forEach(card => {
+    card.addEventListener('click', () => openCountdownModal(card.dataset.cdId));
+  });
+}
+
+function openCountdownModal(cdId = null) {
+  editingCountdownId = cdId;
+  const cd = cdId ? (state.countdowns || []).find(c => c.id === cdId) : null;
+
+  $('countdownModalTitle').textContent = cd ? 'edit countdown' : 'add countdown';
+  $('countdownLabel').value = cd ? cd.label : '';
+  $('countdownEmoji').value = cd ? (cd.emoji || '📅') : '📅';
+  $('countdownDate').value = cd ? cd.date : '';
+  $('countdownDeleteRow').style.display = cd ? 'flex' : 'none';
+  $('countdownModal').classList.add('show');
+}
+
+function closeCountdownModal() {
+  $('countdownModal').classList.remove('show');
+  editingCountdownId = null;
+}
+
+function saveCountdown() {
+  const label = $('countdownLabel').value.trim();
+  if (!label) { showToast('what are you counting down to?'); return; }
+
+  const date = $('countdownDate').value;
+  if (!date) { showToast('pick a date'); return; }
+
+  const emoji = $('countdownEmoji').value.trim() || '📅';
+
+  if (!state.countdowns) state.countdowns = [];
+
+  if (editingCountdownId) {
+    const cd = state.countdowns.find(c => c.id === editingCountdownId);
+    if (cd) {
+      cd.label = label;
+      cd.emoji = emoji;
+      cd.date = date;
+    }
+  } else {
+    state.countdowns.push({
+      id: uid(), label, emoji, date, created: Date.now(),
+    });
+  }
+
+  saveState();
+  closeCountdownModal();
+  refreshAll();
+  showToast(editingCountdownId ? 'countdown updated' : 'countdown added');
+}
+
+function deleteCountdown() {
+  if (!editingCountdownId) return;
+  state.countdowns = state.countdowns.filter(c => c.id !== editingCountdownId);
+  saveState();
+  closeCountdownModal();
+  refreshAll();
+  showToast('countdown removed');
+}
+
 // --- Export / Import ---
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2673,6 +3327,8 @@ function importData(file) {
       if (data.trips && data.expenses) {
         if (!data.accounts) data.accounts = [];
         if (!data.transactions) data.transactions = [];
+        if (!data.visas) data.visas = [];
+        if (!data.countdowns) data.countdowns = [];
         state = data;
         saveState();
         renderAll();
@@ -2710,6 +3366,8 @@ function renderAll() {
   renderBreakdown();
   renderFavorites();
   renderTripComparison();
+  renderVisas();
+  renderCountdowns();
   renderGlobe();
 }
 
@@ -2725,6 +3383,8 @@ function refreshAll() {
   renderBreakdown();
   renderFavorites();
   renderTripComparison();
+  renderVisas();
+  renderCountdowns();
   renderGlobe();
 }
 
@@ -2755,6 +3415,20 @@ $('accountModal').addEventListener('click', (e) => { if (e.target === $('account
 $('addMoneyCancelBtn').addEventListener('click', closeAddMoneyModal);
 $('addMoneySaveBtn').addEventListener('click', saveAddMoney);
 $('addMoneyModal').addEventListener('click', (e) => { if (e.target === $('addMoneyModal')) closeAddMoneyModal(); });
+
+// Visas
+$('newVisaBtn').addEventListener('click', () => openVisaModal());
+$('visaCancelBtn').addEventListener('click', closeVisaModal);
+$('visaSaveBtn').addEventListener('click', saveVisa);
+$('visaDeleteBtn').addEventListener('click', deleteVisa);
+$('visaModal').addEventListener('click', (e) => { if (e.target === $('visaModal')) closeVisaModal(); });
+
+// Countdowns
+$('newCountdownBtn').addEventListener('click', () => openCountdownModal());
+$('countdownCancelBtn').addEventListener('click', closeCountdownModal);
+$('countdownSaveBtn').addEventListener('click', saveCountdown);
+$('countdownDeleteBtn').addEventListener('click', deleteCountdown);
+$('countdownModal').addEventListener('click', (e) => { if (e.target === $('countdownModal')) closeCountdownModal(); });
 
 // Export / Import
 $('exportBtn').addEventListener('click', exportData);
