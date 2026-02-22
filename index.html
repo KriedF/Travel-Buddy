@@ -420,6 +420,8 @@ nav button .icon { font-size: 1.3rem; }
 
 .expense-delete:hover { opacity: 1; color: var(--rose); }
 
+.expense-editable:active { background: var(--surface2); transition: background 0.1s; }
+
 /* --- TRIPS VIEW --- */
 .trip-card {
   background: var(--surface);
@@ -1298,6 +1300,13 @@ nav button .icon { font-size: 1.3rem; }
       <div class="card-label">left to spend today</div>
       <div class="big-number"><span class="currency" id="todayCurrency">$</span><span id="todayLeft">0</span></div>
       <div class="vibe-message" id="todayVibeMsg">you're doing great</div>
+      <div id="avgDailyWrap" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--surface2);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card-label" style="margin: 0;">your daily average</div>
+          <div style="font-weight: 500; font-size: 1rem;"><span id="avgDailyCurr">$</span><span id="avgDailyAmount">0</span></div>
+        </div>
+        <div class="vibe-message" id="avgDailyMsg" style="margin-top: 4px;"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -1573,6 +1582,36 @@ nav button .icon { font-size: 1.3rem; }
     </div>
     <div class="btn-row" id="countdownDeleteRow" style="display:none; margin-top: 8px;">
       <button class="btn-secondary" id="countdownDeleteBtn" style="color: var(--rose);">delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Expense -->
+<div class="modal-overlay" id="editExpenseModal">
+  <div class="modal-sheet">
+    <h2>edit expense</h2>
+    <div class="form-group">
+      <label>category</label>
+      <div class="category-grid" id="editExpCategoryGrid"></div>
+    </div>
+    <div class="form-group">
+      <label>amount</label>
+      <input type="number" id="editExpAmount" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>note</label>
+      <input type="text" id="editExpNote" placeholder="quick note" maxlength="60">
+    </div>
+    <div class="form-group">
+      <label>date</label>
+      <input type="date" id="editExpDate">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="editExpCancelBtn">cancel</button>
+      <button class="btn-primary" id="editExpSaveBtn">save</button>
+    </div>
+    <div class="btn-row" style="margin-top: 8px;">
+      <button class="btn-secondary" id="editExpDeleteBtn" style="color: var(--rose);">delete this expense</button>
     </div>
   </div>
 </div>
@@ -2068,14 +2107,14 @@ function renderHistory() {
       const acctLabel = acct ? ' · ' + acct.name : '';
       const recurLabel = e.recurring ? ' · 🔄' : '';
       html += `
-        <div class="expense-item">
+        <div class="expense-item expense-editable" data-expense-id="${e.id}" style="cursor: pointer;">
           <div class="expense-emoji">${cat.emoji}</div>
           <div class="expense-details">
             <div class="expense-note">${escHtml(e.note)}</div>
             <div class="expense-meta">${cat.label}${acctLabel}${recurLabel} · ${time}</div>
           </div>
           <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
-          <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
+          <div class="expense-meta" style="font-size: 0.65rem; opacity: 0.5; align-self: center;">✏️</div>
         </div>
       `;
     });
@@ -2084,8 +2123,8 @@ function renderHistory() {
 
   container.innerHTML = html;
 
-  container.querySelectorAll('.expense-delete').forEach(btn => {
-    btn.addEventListener('click', () => deleteExpense(btn.dataset.id));
+  container.querySelectorAll('.expense-editable').forEach(item => {
+    item.addEventListener('click', () => openEditExpenseModal(item.dataset.expenseId));
   });
 }
 
@@ -2097,6 +2136,119 @@ function formatDateLabel(dateStr) {
   if (dateStr === yesterday.toISOString().slice(0, 10)) return 'yesterday';
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+// --- Edit Expense ---
+let editingExpenseId = null;
+let editExpCategory = null;
+
+function openEditExpenseModal(expenseId) {
+  const exp = state.expenses.find(e => e.id === expenseId);
+  if (!exp) return;
+
+  editingExpenseId = expenseId;
+  editExpCategory = exp.category;
+
+  // Render category grid
+  const grid = $('editExpCategoryGrid');
+  grid.innerHTML = CATEGORIES.map(c => `
+    <div class="cat-btn ${c.id === exp.category ? 'selected' : ''}" data-cat="${c.id}">
+      <div class="cat-emoji">${c.emoji}</div>
+      <div class="cat-label">${c.label}</div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      editExpCategory = btn.dataset.cat;
+    });
+  });
+
+  $('editExpAmount').value = exp.amount;
+  $('editExpNote').value = exp.note || '';
+  $('editExpDate').value = exp.date || todayStr();
+
+  $('editExpenseModal').classList.add('show');
+}
+
+function closeEditExpenseModal() {
+  $('editExpenseModal').classList.remove('show');
+  editingExpenseId = null;
+  editExpCategory = null;
+}
+
+function saveEditedExpense() {
+  const exp = state.expenses.find(e => e.id === editingExpenseId);
+  if (!exp) return;
+
+  const newAmount = parseFloat($('editExpAmount').value);
+  if (!newAmount || newAmount <= 0) { showToast('enter an amount'); return; }
+
+  const oldAmount = exp.amount;
+
+  // If the amount changed and the expense was linked to an account, adjust the balance
+  if (exp.accountId && newAmount !== oldAmount) {
+    const account = getAccountById(exp.accountId);
+    if (account) {
+      const oldDeduct = exp.convertedAmount || oldAmount;
+      const newDeduct = exp.convertedAmount ? (exp.convertedAmount / oldAmount * newAmount) : newAmount;
+      account.balance += oldDeduct - newDeduct;
+      if (exp.convertedAmount) exp.convertedAmount = newDeduct;
+    }
+  }
+
+  exp.amount = newAmount;
+  exp.category = editExpCategory || exp.category;
+  exp.note = $('editExpNote').value.trim() || getCategoryById(exp.category).label;
+  exp.date = $('editExpDate').value || exp.date;
+
+  saveState();
+  closeEditExpenseModal();
+  refreshAll();
+  showToast('expense updated');
+}
+
+function deleteEditedExpense() {
+  if (!editingExpenseId) return;
+  deleteExpense(editingExpenseId);
+  closeEditExpenseModal();
+}
+
+// --- Average Daily Spend ---
+function updateAvgDaily() {
+  const trip = getActiveTrip();
+  if (!trip) { $('avgDailyWrap').style.display = 'none'; return; }
+
+  const tripExpenses = state.expenses.filter(e => e.tripId === trip.id);
+  if (tripExpenses.length === 0) { $('avgDailyWrap').style.display = 'none'; return; }
+
+  // Count unique days with expenses
+  const days = new Set(tripExpenses.map(e => e.date));
+  const numDays = days.size;
+  const totalSpent = tripExpenses.reduce((s, e) => s + e.amount, 0);
+  const avg = totalSpent / numDays;
+  const curr = trip.currency || '$';
+  const budget = trip.dailyBudget || 0;
+
+  $('avgDailyWrap').style.display = 'block';
+  $('avgDailyCurr').textContent = curr;
+  $('avgDailyAmount').textContent = formatMoney(avg);
+
+  if (budget > 0) {
+    const diff = budget - avg;
+    if (diff >= 0) {
+      $('avgDailyMsg').textContent = `${curr}${formatMoney(diff)} under budget on average — nice`;
+      $('avgDailyMsg').style.color = 'var(--green)';
+    } else {
+      $('avgDailyMsg').textContent = `${curr}${formatMoney(Math.abs(diff))} over budget on average — just awareness, no judgment`;
+      $('avgDailyMsg').style.color = 'var(--amber)';
+    }
+  } else {
+    $('avgDailyMsg').textContent = `across ${numDays} day${numDays !== 1 ? 's' : ''} of spending`;
+    $('avgDailyMsg').style.color = 'var(--text-dim)';
+  }
 }
 
 // ============================================================
@@ -3552,6 +3704,7 @@ function renderAll() {
   renderVisas();
   renderCountdowns();
   renderGlobe();
+  updateAvgDaily();
 }
 
 function refreshAll() {
@@ -3569,6 +3722,7 @@ function refreshAll() {
   renderVisas();
   renderCountdowns();
   renderGlobe();
+  updateAvgDaily();
 }
 
 // --- Wire up events ---
@@ -3613,6 +3767,12 @@ $('countdownCancelBtn').addEventListener('click', closeCountdownModal);
 $('countdownSaveBtn').addEventListener('click', saveCountdown);
 $('countdownDeleteBtn').addEventListener('click', deleteCountdown);
 $('countdownModal').addEventListener('click', (e) => { if (e.target === $('countdownModal')) closeCountdownModal(); });
+
+// Edit Expense
+$('editExpCancelBtn').addEventListener('click', closeEditExpenseModal);
+$('editExpSaveBtn').addEventListener('click', saveEditedExpense);
+$('editExpDeleteBtn').addEventListener('click', deleteEditedExpense);
+$('editExpenseModal').addEventListener('click', (e) => { if (e.target === $('editExpenseModal')) closeEditExpenseModal(); });
 
 // Export / Import
 $('exportCsvBtn').addEventListener('click', exportCsv);
