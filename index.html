@@ -737,6 +737,53 @@ nav button .icon { font-size: 1.3rem; }
 
 .settings-btn:hover { border-color: var(--accent-soft); }
 
+.sync-url-box {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--surface2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  word-break: break-all;
+  max-height: 100px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.sync-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sync-actions button {
+  flex: 1;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.sync-actions button:nth-child(2) {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.sync-hint {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
 /* --- GLOBE VIEW --- */
 #viewGlobe {
   padding-top: 0 !important;
@@ -943,6 +990,20 @@ nav button .icon { font-size: 1.3rem; }
     <div id="tripsList"></div>
 
     <div class="settings-section">
+      <div class="section-title">sync between devices</div>
+      <p class="sync-hint">generate a link on one device, open it on the other — your data travels with you</p>
+      <button class="settings-btn" id="syncGenBtn">🔗 generate sync link</button>
+      <div id="syncOutput" style="display:none">
+        <div class="sync-url-box" id="syncUrlBox"></div>
+        <div class="sync-actions">
+          <button id="syncCopyBtn">copy link</button>
+          <button id="syncDismissBtn">dismiss</button>
+        </div>
+      </div>
+      <button class="settings-btn" id="syncLoadBtn">📲 load sync link from clipboard</button>
+    </div>
+
+    <div class="settings-section">
       <div class="section-title">your data</div>
       <button class="settings-btn" id="exportBtn">📦 export all data (JSON)</button>
       <button class="settings-btn" id="importBtn">📂 import data</button>
@@ -1078,6 +1139,10 @@ const CATEGORIES = [
   { id: 'stay',      emoji: '🛏️', label: 'stay' },
   { id: 'fun',       emoji: '✨', label: 'fun' },
   { id: 'health',    emoji: '💊', label: 'health' },
+  { id: 'groceries', emoji: '🛒', label: 'groceries' },
+  { id: 'shopping',  emoji: '👗', label: 'shopping' },
+  { id: 'immigration', emoji: '🛂', label: 'immigration' },
+  { id: 'selfcare',  emoji: '💇', label: 'self-care' },
   { id: 'other',     emoji: '📦', label: 'other' },
 ];
 
@@ -1159,7 +1224,7 @@ function getTodayTotal() {
 }
 
 function getCategoryById(id) {
-  return CATEGORIES.find(c => c.id === id) || CATEGORIES[5];
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 }
 
 function getAccountById(id) {
@@ -2094,6 +2159,107 @@ function renderVisitedList(visitedWithCoords, visited) {
   listEl.innerHTML = chips;
 }
 
+// --- Sync via URL ---
+function compressToBase64(str) {
+  // Simple UTF-8 -> Uint8Array -> deflate-like -> base64url
+  const bytes = new TextEncoder().encode(str);
+  // Use built-in compression if available (modern browsers)
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decompressFromBase64(b64) {
+  const padded = b64.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4));
+  const binary = atob(padded + pad);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function generateSyncLink() {
+  try {
+    const json = JSON.stringify(state);
+    const encoded = compressToBase64(json);
+    const url = window.location.origin + window.location.pathname + '#sync=' + encoded;
+    const output = $('syncOutput');
+    const box = $('syncUrlBox');
+    box.textContent = url;
+    output.style.display = 'block';
+    showToast('sync link ready');
+  } catch (e) {
+    showToast('could not generate link');
+  }
+}
+
+function copySyncLink() {
+  const url = $('syncUrlBox').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => showToast('copied to clipboard'));
+  } else {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('copied to clipboard');
+  }
+}
+
+async function loadSyncFromClipboard() {
+  try {
+    let text = '';
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      text = await navigator.clipboard.readText();
+    } else {
+      showToast('clipboard access not available — paste the link in your browser address bar instead');
+      return;
+    }
+    const match = text.match(/#sync=(.+)$/);
+    if (!match) {
+      showToast('no sync link found in clipboard');
+      return;
+    }
+    applySyncData(match[1]);
+  } catch (e) {
+    showToast('could not read clipboard — paste the link in your browser address bar instead');
+  }
+}
+
+function applySyncData(encoded) {
+  try {
+    const json = decompressFromBase64(encoded);
+    const data = JSON.parse(json);
+    if (data.trips && data.expenses) {
+      if (!data.accounts) data.accounts = [];
+      if (!data.transactions) data.transactions = [];
+      state = data;
+      saveState();
+      renderAll();
+      // Clear the hash so it doesn't re-trigger
+      history.replaceState(null, '', window.location.pathname);
+      showToast('data synced from link');
+    } else {
+      showToast('invalid sync data');
+    }
+  } catch (e) {
+    showToast('could not read sync data');
+  }
+}
+
+// Check for sync link on page load
+function checkSyncHash() {
+  const hash = window.location.hash;
+  if (hash.startsWith('#sync=')) {
+    const encoded = hash.slice(6);
+    if (encoded.length > 0) {
+      applySyncData(encoded);
+    }
+  }
+}
+
 // --- Export / Import ---
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2191,6 +2357,13 @@ $('addMoneySaveBtn').addEventListener('click', saveAddMoney);
 $('addMoneyModal').addEventListener('click', (e) => { if (e.target === $('addMoneyModal')) closeAddMoneyModal(); });
 
 // Export / Import
+// Sync
+$('syncGenBtn').addEventListener('click', generateSyncLink);
+$('syncCopyBtn').addEventListener('click', copySyncLink);
+$('syncDismissBtn').addEventListener('click', () => { $('syncOutput').style.display = 'none'; });
+$('syncLoadBtn').addEventListener('click', loadSyncFromClipboard);
+
+// Export / Import
 $('exportBtn').addEventListener('click', exportData);
 $('importBtn').addEventListener('click', () => $('importFile').click());
 $('importFile').addEventListener('change', (e) => {
@@ -2205,6 +2378,7 @@ $('addMoneyAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') 
 $('convertAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); logExpense(); } });
 
 // --- Init ---
+checkSyncHash();
 renderAll();
 </script>
 </body>
