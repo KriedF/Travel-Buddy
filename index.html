@@ -737,6 +737,242 @@ nav button .icon { font-size: 1.3rem; }
 
 .settings-btn:hover { border-color: var(--accent-soft); }
 
+/* --- RECURRING TOGGLE --- */
+.recurring-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.recurring-toggle:hover { background: var(--accent-soft); }
+
+.recurring-toggle .toggle-track {
+  width: 40px;
+  height: 22px;
+  background: var(--bg);
+  border-radius: 99px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.recurring-toggle.active .toggle-track { background: var(--accent); }
+
+.recurring-toggle .toggle-knob {
+  width: 18px;
+  height: 18px;
+  background: var(--text);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+
+.recurring-toggle.active .toggle-knob { transform: translateX(18px); }
+
+.recurring-toggle .toggle-label {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.recurring-toggle.active .toggle-label { color: var(--text); }
+
+.recurring-freq {
+  display: none;
+  margin-bottom: 14px;
+}
+
+.recurring-freq.show { display: flex; gap: 8px; }
+
+.freq-chip {
+  flex: 1;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.freq-chip:hover { background: var(--accent-soft); }
+.freq-chip.selected { border-color: var(--accent); color: var(--text); background: var(--accent-soft); }
+
+/* --- CATEGORY BREAKDOWN --- */
+.breakdown-bar {
+  display: flex;
+  height: 20px;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: var(--surface2);
+}
+
+.breakdown-segment {
+  height: 100%;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.breakdown-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.breakdown-pct {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+/* --- FAVORITES --- */
+.favorites-section { margin-bottom: 16px; }
+
+.fav-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fav-chips::-webkit-scrollbar { display: none; }
+
+.fav-chip {
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: 99px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fav-chip:hover { border-color: var(--accent-soft); background: var(--accent-soft); }
+
+.fav-chip .fav-emoji { font-size: 1rem; }
+
+/* --- TRIP COMPARISON --- */
+.comparison-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.comparison-bar-wrap {
+  margin-top: 8px;
+}
+
+.comparison-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.comparison-bar-label {
+  width: 90px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-align: right;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-bar-track {
+  flex: 1;
+  height: 16px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.comparison-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.comparison-bar-value {
+  width: 70px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.comparison-stat {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* --- TRIP NOTES --- */
+.trip-notes-wrap {
+  margin-top: 16px;
+}
+
+.trip-notes-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+.trip-notes-textarea:focus { border-color: var(--accent); }
+.trip-notes-textarea::placeholder { color: var(--text-dim); }
+
+.notes-save-hint {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+  text-align: right;
+}
+
 /* --- GLOBE VIEW --- */
 #viewGlobe {
   padding-top: 0 !important;
@@ -883,6 +1119,11 @@ nav button .icon { font-size: 1.3rem; }
       <div class="vibe-message" id="vibeMessage">set up a trip to start tracking</div>
     </div>
 
+    <div class="favorites-section" id="favoritesSection" style="display:none;">
+      <div class="card-label">quick re-log</div>
+      <div class="fav-chips" id="favChips"></div>
+    </div>
+
     <div class="card">
       <div class="card-label">what did you spend on?</div>
       <div class="category-grid" id="categoryGrid"></div>
@@ -890,6 +1131,11 @@ nav button .icon { font-size: 1.3rem; }
         <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
       </div>
       <input type="text" class="note-input" id="noteInput" placeholder="quick note (optional)" maxlength="60">
+      <div class="recurring-toggle" id="recurringToggle">
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <div class="toggle-label">recurring expense (repeats monthly)</div>
+      </div>
+
       <div class="card-label">paid from</div>
       <div class="account-picker" id="accountPicker"></div>
       <div id="convertWrap" style="display:none; margin-bottom: 14px;">
@@ -914,6 +1160,12 @@ nav button .icon { font-size: 1.3rem; }
     <div class="card">
       <div class="card-label">this week at a glance</div>
       <div class="week-grid" id="weekGrid"></div>
+    </div>
+
+    <div class="card" id="breakdownCard" style="display:none;">
+      <div class="card-label">where did it go? (this trip)</div>
+      <div class="breakdown-bar" id="breakdownBar"></div>
+      <div class="breakdown-list" id="breakdownList"></div>
     </div>
 
     <div class="section-title">today's expenses</div>
@@ -941,6 +1193,11 @@ nav button .icon { font-size: 1.3rem; }
   <div class="view" id="viewTrips">
     <button class="new-trip-btn" id="newTripBtn">+ new trip</button>
     <div id="tripsList"></div>
+
+    <div id="tripComparisonSection" style="display:none;">
+      <div class="section-title">trip comparison</div>
+      <div id="tripComparison"></div>
+    </div>
 
     <div class="settings-section">
       <div class="section-title">your data</div>
@@ -1004,6 +1261,13 @@ nav button .icon { font-size: 1.3rem; }
     <div class="form-group">
       <label>currency symbol</label>
       <input type="text" id="tripCurrency" placeholder="$" maxlength="4" value="$">
+    </div>
+    <div class="trip-notes-wrap" id="tripNotesWrap" style="display:none;">
+      <div class="form-group">
+        <label>trip notes & journal</label>
+        <textarea class="trip-notes-textarea" id="tripNotes" placeholder="loved the hostel on that street... avoid the ATM at the airport... best coffee spot was..." rows="4"></textarea>
+        <div class="notes-save-hint">saved when you save the trip</div>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn-secondary" id="tripCancelBtn">cancel</button>
@@ -1188,9 +1452,13 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
+// --- Category colors for breakdown ---
+const CAT_COLORS = ['#7c6fe0','#6bcb8b','#e8b86d','#d4789c','#6ba3cb','#e07c6f','#b86be0','#6bcbc2','#cb8b6b','#9994b8'];
+
 // --- Categories ---
 let selectedCategory = null;
 let selectedAccountId = null;
+let recurringEnabled = false;
 
 function renderCategories() {
   const grid = $('categoryGrid');
@@ -1234,6 +1502,12 @@ function renderAccountPicker() {
       updateConvertField();
     });
   });
+}
+
+// --- Recurring toggle ---
+function toggleRecurring() {
+  recurringEnabled = !recurringEnabled;
+  $('recurringToggle').classList.toggle('active', recurringEnabled);
 }
 
 function needsCurrencyConvert() {
@@ -1339,6 +1613,7 @@ function logExpense() {
     date: todayStr(),
     timestamp: Date.now(),
     accountId: selectedAccountId || null,
+    recurring: recurringEnabled || false,
   };
 
   state.expenses.push(expense);
@@ -1383,6 +1658,8 @@ function logExpense() {
   $('convertAmount').value = '';
   selectedCategory = null;
   $('categoryGrid').querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  recurringEnabled = false;
+  $('recurringToggle').classList.remove('active');
   // Keep account selected for convenience
   updateLogBtn();
 
@@ -1410,12 +1687,13 @@ function renderTodayExpenses() {
     const acct = e.accountId ? getAccountById(e.accountId) : null;
     const acctLabel = acct ? ' · ' + acct.name : '';
     const convertLabel = (e.convertedAmount && e.accountCurrency) ? ` (${e.accountCurrency}${formatMoney(e.convertedAmount)})` : '';
+    const recurLabel = e.recurring ? ' · 🔄' : '';
     return `
       <div class="expense-item">
         <div class="expense-emoji">${cat.emoji}</div>
         <div class="expense-details">
           <div class="expense-note">${escHtml(e.note)}</div>
-          <div class="expense-meta">${cat.label}${acctLabel}${convertLabel} · ${time}</div>
+          <div class="expense-meta">${cat.label}${acctLabel}${convertLabel}${recurLabel} · ${time}</div>
         </div>
         <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
         <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
@@ -1530,12 +1808,13 @@ function renderHistory() {
       const time = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const acct = e.accountId ? getAccountById(e.accountId) : null;
       const acctLabel = acct ? ' · ' + acct.name : '';
+      const recurLabel = e.recurring ? ' · 🔄' : '';
       html += `
         <div class="expense-item">
           <div class="expense-emoji">${cat.emoji}</div>
           <div class="expense-details">
             <div class="expense-note">${escHtml(e.note)}</div>
-            <div class="expense-meta">${cat.label}${acctLabel} · ${time}</div>
+            <div class="expense-meta">${cat.label}${acctLabel}${recurLabel} · ${time}</div>
           </div>
           <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
           <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
@@ -1770,6 +2049,7 @@ function renderTrips() {
         <div class="trip-meta">
           ${t.location ? t.location + ' · ' : ''}${curr}${formatMoney(t.dailyBudget || 0)}/day · ${expCount} expenses · ${curr}${formatMoney(totalSpent)} total
         </div>
+        ${t.notes ? `<div class="trip-meta" style="margin-top: 4px; font-style: italic; opacity: 0.7;">📝 ${escHtml(t.notes.slice(0, 60))}${t.notes.length > 60 ? '...' : ''}</div>` : ''}
       </div>
     `;
   }).join('');
@@ -1799,6 +2079,8 @@ function openTripModal(tripId = null) {
   $('tripBudget').value = trip ? (trip.dailyBudget || '') : '';
   $('tripCurrency').value = trip ? (trip.currency || '$') : '$';
   $('tripDeleteRow').style.display = trip ? 'flex' : 'none';
+  $('tripNotesWrap').style.display = trip ? 'block' : 'none';
+  $('tripNotes').value = trip ? (trip.notes || '') : '';
   $('tripModal').classList.add('show');
 }
 
@@ -1815,6 +2097,8 @@ function saveTrip() {
   const location = $('tripLocation').value.trim();
   const currency = $('tripCurrency').value.trim() || '$';
 
+  const notes = $('tripNotes').value.trim();
+
   if (editingTripId) {
     const trip = state.trips.find(t => t.id === editingTripId);
     if (trip) {
@@ -1822,9 +2106,10 @@ function saveTrip() {
       trip.location = location;
       trip.dailyBudget = budget;
       trip.currency = currency;
+      trip.notes = notes;
     }
   } else {
-    const trip = { id: uid(), name, location, dailyBudget: budget, currency, created: Date.now() };
+    const trip = { id: uid(), name, location, dailyBudget: budget, currency, created: Date.now(), notes };
     state.trips.push(trip);
     state.activeTrip = trip.id;
   }
@@ -2098,6 +2383,276 @@ function renderVisitedList(visitedWithCoords, visited) {
   listEl.innerHTML = chips;
 }
 
+// ============================================================
+//  RECURRING EXPENSES — auto-log monthly
+// ============================================================
+
+function autoLogRecurring() {
+  const today = todayStr();
+  const trip = getActiveTrip();
+  if (!trip) return;
+
+  // Find all recurring expenses
+  const recurringExpenses = state.expenses.filter(e => e.recurring && e.tripId === trip.id);
+
+  // Group by a key (category + note + amount + accountId) and find the latest of each
+  const seen = {};
+  recurringExpenses.forEach(e => {
+    const key = `${e.category}|${e.note}|${e.amount}|${e.accountId || ''}`;
+    if (!seen[key] || e.timestamp > seen[key].timestamp) {
+      seen[key] = e;
+    }
+  });
+
+  // For each unique recurring expense, check if it's been logged today
+  Object.values(seen).forEach(template => {
+    const key = `${template.category}|${template.note}|${template.amount}|${template.accountId || ''}`;
+    const lastDate = new Date(template.date + 'T12:00:00');
+    const todayDate = new Date(today + 'T12:00:00');
+    const daysSince = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+    // If 30+ days since last log and not logged today
+    if (daysSince >= 30) {
+      const alreadyToday = state.expenses.some(e =>
+        e.recurring && e.date === today && e.tripId === trip.id &&
+        `${e.category}|${e.note}|${e.amount}|${e.accountId || ''}` === key
+      );
+      if (!alreadyToday) {
+        const newExp = {
+          id: uid(),
+          tripId: trip.id,
+          amount: template.amount,
+          category: template.category,
+          note: template.note,
+          date: today,
+          timestamp: Date.now(),
+          accountId: template.accountId,
+          recurring: true,
+          autoLogged: true,
+        };
+        state.expenses.push(newExp);
+
+        // Deduct from account
+        if (template.accountId) {
+          const acct = getAccountById(template.accountId);
+          if (acct) {
+            acct.balance -= template.amount;
+            state.transactions.push({
+              id: uid(), accountId: template.accountId,
+              amount: -template.amount, type: 'expense',
+              note: template.note + ' (recurring)',
+              date: today, timestamp: Date.now(), expenseId: newExp.id,
+            });
+          }
+        }
+      }
+    }
+  });
+  saveState();
+}
+
+// ============================================================
+//  WHERE DID IT GO? — category breakdown
+// ============================================================
+
+function renderBreakdown() {
+  const trip = getActiveTrip();
+  const card = $('breakdownCard');
+  if (!trip) { card.style.display = 'none'; return; }
+
+  const tripExpenses = state.expenses.filter(e => e.tripId === trip.id);
+  if (tripExpenses.length === 0) { card.style.display = 'none'; return; }
+
+  card.style.display = 'block';
+  const total = tripExpenses.reduce((s, e) => s + e.amount, 0);
+
+  // Group by category
+  const catTotals = {};
+  tripExpenses.forEach(e => {
+    catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+  });
+
+  // Sort by amount descending
+  const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+
+  const curr = trip.currency || '$';
+
+  // Render bar
+  $('breakdownBar').innerHTML = sorted.map(([catId, amt], i) => {
+    const pct = (amt / total) * 100;
+    return `<div class="breakdown-segment" style="width: ${pct}%; background: ${CAT_COLORS[i % CAT_COLORS.length]};"></div>`;
+  }).join('');
+
+  // Render list
+  $('breakdownList').innerHTML = sorted.map(([catId, amt], i) => {
+    const cat = getCategoryById(catId);
+    const pct = Math.round((amt / total) * 100);
+    return `
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background: ${CAT_COLORS[i % CAT_COLORS.length]};"></div>
+        ${cat.emoji} ${cat.label}
+        <span class="breakdown-pct">${pct}% · ${curr}${formatMoney(amt)}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+//  QUICK-LOG FAVORITES
+// ============================================================
+
+function renderFavorites() {
+  const trip = getActiveTrip();
+  const section = $('favoritesSection');
+  const chips = $('favChips');
+  if (!trip) { section.style.display = 'none'; return; }
+
+  // Find most common expenses for this trip (by category + note + amount)
+  const expenseMap = {};
+  state.expenses.filter(e => e.tripId === trip.id).forEach(e => {
+    const key = `${e.category}|${e.amount}|${e.note}|${e.accountId || ''}`;
+    if (!expenseMap[key]) {
+      expenseMap[key] = { count: 0, expense: e };
+    }
+    expenseMap[key].count++;
+  });
+
+  // Get top favorites (logged 2+ times)
+  const favs = Object.values(expenseMap)
+    .filter(f => f.count >= 2)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  if (favs.length === 0) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  const curr = trip.currency || '$';
+
+  chips.innerHTML = favs.map(f => {
+    const cat = getCategoryById(f.expense.category);
+    const label = f.expense.note || cat.label;
+    return `
+      <button class="fav-chip" data-cat="${f.expense.category}" data-amount="${f.expense.amount}" data-note="${escHtml(f.expense.note)}" data-acct="${f.expense.accountId || ''}">
+        <span class="fav-emoji">${cat.emoji}</span>${escHtml(label)} · ${curr}${formatMoney(f.expense.amount)}
+      </button>
+    `;
+  }).join('');
+
+  chips.querySelectorAll('.fav-chip').forEach(chip => {
+    chip.addEventListener('click', () => quickLogFavorite(chip));
+  });
+}
+
+function quickLogFavorite(chip) {
+  const trip = getActiveTrip();
+  if (!trip) return;
+
+  const amount = parseFloat(chip.dataset.amount);
+  const category = chip.dataset.cat;
+  const note = chip.dataset.note;
+  const accountId = chip.dataset.acct || null;
+
+  const expense = {
+    id: uid(),
+    tripId: trip.id,
+    amount,
+    category,
+    note: note || getCategoryById(category).label,
+    date: todayStr(),
+    timestamp: Date.now(),
+    accountId,
+    recurring: false,
+  };
+
+  state.expenses.push(expense);
+
+  // Deduct from account
+  if (accountId) {
+    const acct = getAccountById(accountId);
+    if (acct) {
+      acct.balance -= amount;
+      state.transactions.push({
+        id: uid(), accountId,
+        amount: -amount, type: 'expense',
+        note: expense.note, date: todayStr(),
+        timestamp: Date.now(), expenseId: expense.id,
+      });
+    }
+  }
+
+  saveState();
+  const messages = ['quick logged ✓', 'done ✓', 'same as last time ✓'];
+  showToast(messages[Math.floor(Math.random() * messages.length)]);
+  refreshAll();
+}
+
+// ============================================================
+//  TRIP COMPARISON
+// ============================================================
+
+function renderTripComparison() {
+  const section = $('tripComparisonSection');
+  const container = $('tripComparison');
+
+  if (state.trips.length < 2) { section.style.display = 'none'; return; }
+
+  // Only compare trips that have expenses
+  const tripsWithExpenses = state.trips.filter(t =>
+    state.expenses.some(e => e.tripId === t.id)
+  );
+
+  if (tripsWithExpenses.length < 2) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+
+  // Calculate avg daily spend per trip
+  const tripStats = tripsWithExpenses.map(t => {
+    const expenses = state.expenses.filter(e => e.tripId === t.id);
+    const total = expenses.reduce((s, e) => s + e.amount, 0);
+    const days = new Set(expenses.map(e => e.date)).size || 1;
+    const avgDaily = total / days;
+    return { trip: t, total, days, avgDaily };
+  });
+
+  const maxDaily = Math.max(...tripStats.map(s => s.avgDaily));
+  const barColors = ['var(--accent)', 'var(--green)', 'var(--amber)', 'var(--blue)', 'var(--rose)', '#b86be0', '#6bcbc2'];
+
+  container.innerHTML = `
+    <div class="comparison-card">
+      <div class="card-label">average daily spend</div>
+      <div class="comparison-bar-wrap">
+        ${tripStats.map((s, i) => {
+          const pct = maxDaily > 0 ? (s.avgDaily / maxDaily) * 100 : 0;
+          const curr = s.trip.currency || '$';
+          return `
+            <div class="comparison-bar-row">
+              <div class="comparison-bar-label">${escHtml(s.trip.name)}</div>
+              <div class="comparison-bar-track">
+                <div class="comparison-bar-fill" style="width: ${pct}%; background: ${barColors[i % barColors.length]};"></div>
+              </div>
+              <div class="comparison-bar-value">${curr}${formatMoney(s.avgDaily)}/d</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="comparison-stat">
+        ${(() => {
+          const cheapest = tripStats.reduce((a, b) => a.avgDaily < b.avgDaily ? a : b);
+          const priciest = tripStats.reduce((a, b) => a.avgDaily > b.avgDaily ? a : b);
+          if (cheapest.trip.id === priciest.trip.id) return '';
+          return `${cheapest.trip.name} was your cheapest · ${priciest.trip.name} was the priciest`;
+        })()}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+//  TRIP NOTES / JOURNAL
+// ============================================================
+
+// Notes are stored as trip.notes in each trip object
+
 // --- Export / Import ---
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2152,6 +2707,9 @@ function renderAll() {
   renderWeekGrid();
   renderAccounts();
   renderTransactions();
+  renderBreakdown();
+  renderFavorites();
+  renderTripComparison();
   renderGlobe();
 }
 
@@ -2164,6 +2722,9 @@ function refreshAll() {
   renderWeekGrid();
   renderAccounts();
   renderTransactions();
+  renderBreakdown();
+  renderFavorites();
+  renderTripComparison();
   renderGlobe();
 }
 
@@ -2174,6 +2735,7 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 $('amountInput').addEventListener('input', () => { updateLogBtn(); updateConvertField(); });
 $('logBtn').addEventListener('click', logExpense);
+$('recurringToggle').addEventListener('click', toggleRecurring);
 
 // Trips
 $('newTripBtn').addEventListener('click', () => openTripModal());
@@ -2209,6 +2771,7 @@ $('addMoneyAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') 
 $('convertAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); logExpense(); } });
 
 // --- Init ---
+autoLogRecurring();
 renderAll();
 </script>
 </body>
