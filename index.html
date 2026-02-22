@@ -1422,6 +1422,11 @@ nav button .icon { font-size: 1.3rem; }
       <label>currency symbol</label>
       <input type="text" id="tripCurrency" placeholder="$" maxlength="4" value="$">
     </div>
+    <div class="form-group">
+      <label>leaving on (optional)</label>
+      <input type="date" id="tripEndDate">
+      <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px;">adds a countdown to your dates tab</div>
+    </div>
     <div class="trip-notes-wrap" id="tripNotesWrap" style="display:none;">
       <div class="form-group">
         <label>trip notes & journal</label>
@@ -1429,7 +1434,32 @@ nav button .icon { font-size: 1.3rem; }
         <div class="notes-save-hint">saved when you save the trip</div>
       </div>
     </div>
-    <div class="btn-row">
+
+    <!-- Visa section (new trips only) -->
+    <div id="tripVisaSection" style="display:none; margin-top: 8px;">
+      <div class="section-title" style="margin-top: 12px;">🛂 track visa?</div>
+      <div class="recurring-toggle" id="tripVisaToggle">
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <div class="toggle-label">add a visa entry for this trip</div>
+      </div>
+      <div id="tripVisaFields" style="display:none;">
+        <div class="form-group">
+          <label>entry date</label>
+          <input type="date" id="tripVisaEntry">
+        </div>
+        <div class="form-group">
+          <label>allowed days</label>
+          <input type="number" id="tripVisaDays" placeholder="90" inputmode="numeric" min="1" max="3650">
+          <div id="tripVisaHint" style="font-size: 0.7rem; color: var(--green); margin-top: 4px; min-height: 1em;"></div>
+        </div>
+        <div class="form-group">
+          <label>visa type</label>
+          <input type="text" id="tripVisaType" placeholder="e.g. tourist" maxlength="30">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top: 20px;">
       <button class="btn-secondary" id="tripCancelBtn">cancel</button>
       <button class="btn-primary" id="tripSaveBtn">save trip</button>
     </div>
@@ -2256,6 +2286,24 @@ function saveAddMoney() {
 // ============================================================
 
 let editingTripId = null;
+let tripVisaEnabled = false;
+
+function toggleTripVisa() {
+  tripVisaEnabled = !tripVisaEnabled;
+  $('tripVisaToggle').classList.toggle('active', tripVisaEnabled);
+  $('tripVisaFields').style.display = tripVisaEnabled ? 'block' : 'none';
+  // Auto-fill from location if available
+  if (tripVisaEnabled) {
+    const loc = $('tripLocation').value.trim();
+    const info = lookupUkVisa(loc);
+    if (info) {
+      if (!$('tripVisaDays').value) $('tripVisaDays').value = info.days;
+      if (!$('tripVisaType').value) $('tripVisaType').value = info.type;
+      $('tripVisaHint').textContent = `🇬🇧 ${info.days} days — ${info.type}`;
+    }
+    if (!$('tripVisaEntry').value) $('tripVisaEntry').value = todayStr();
+  }
+}
 
 function renderTrips() {
   const list = $('tripsList');
@@ -2307,6 +2355,38 @@ function openTripModal(tripId = null) {
   $('tripDeleteRow').style.display = trip ? 'flex' : 'none';
   $('tripNotesWrap').style.display = trip ? 'block' : 'none';
   $('tripNotes').value = trip ? (trip.notes || '') : '';
+
+  // End date (leaving on)
+  $('tripEndDate').value = trip ? (trip.endDate || '') : '';
+
+  // Show visa section for new trips only
+  const isNew = !trip;
+  $('tripVisaSection').style.display = isNew ? 'block' : 'none';
+
+  // Reset visa toggle
+  tripVisaEnabled = false;
+  $('tripVisaToggle').classList.remove('active');
+  $('tripVisaFields').style.display = 'none';
+
+  // Reset visa fields
+  $('tripVisaEntry').value = todayStr();
+  $('tripVisaDays').value = '';
+  $('tripVisaType').value = '';
+  $('tripVisaHint').textContent = '';
+
+  // Auto-fill visa from location when typing
+  $('tripLocation').oninput = () => {
+    const loc = $('tripLocation').value.trim();
+    const info = lookupUkVisa(loc);
+    if (info && isNew) {
+      $('tripVisaDays').value = info.days;
+      $('tripVisaType').value = info.type;
+      $('tripVisaHint').textContent = `🇬🇧 ${info.days} days — ${info.type}`;
+    } else {
+      $('tripVisaHint').textContent = '';
+    }
+  };
+
   $('tripModal').classList.add('show');
 }
 
@@ -2324,20 +2404,63 @@ function saveTrip() {
   const currency = $('tripCurrency').value.trim() || '$';
 
   const notes = $('tripNotes').value.trim();
+  const endDate = $('tripEndDate').value || '';
 
   if (editingTripId) {
     const trip = state.trips.find(t => t.id === editingTripId);
     if (trip) {
+      const oldEndDate = trip.endDate;
       trip.name = name;
       trip.location = location;
       trip.dailyBudget = budget;
       trip.currency = currency;
       trip.notes = notes;
+      trip.endDate = endDate;
+
+      // Update or create/remove countdown linked to this trip
+      if (!state.countdowns) state.countdowns = [];
+      const existingCd = state.countdowns.find(c => c.tripId === trip.id && c.autoFromTrip);
+      if (endDate) {
+        if (existingCd) {
+          existingCd.label = 'leaving ' + (location || name);
+          existingCd.date = endDate;
+        } else {
+          state.countdowns.push({
+            id: uid(), label: 'leaving ' + (location || name), date: endDate,
+            emoji: '✈️', created: Date.now(), tripId: trip.id, autoFromTrip: true,
+          });
+        }
+      } else if (existingCd) {
+        // End date was cleared — remove the auto countdown
+        state.countdowns = state.countdowns.filter(c => c.id !== existingCd.id);
+      }
     }
   } else {
-    const trip = { id: uid(), name, location, dailyBudget: budget, currency, created: Date.now(), notes };
+    const trip = { id: uid(), name, location, dailyBudget: budget, currency, created: Date.now(), notes, endDate };
     state.trips.push(trip);
     state.activeTrip = trip.id;
+
+    // Create visa if toggled
+    if (tripVisaEnabled) {
+      const visaEntry = $('tripVisaEntry').value || todayStr();
+      const visaDays = parseInt($('tripVisaDays').value) || 90;
+      const visaType = $('tripVisaType').value.trim() || 'tourist';
+      if (!state.visas) state.visas = [];
+      state.visas.push({
+        id: uid(), country: location || name, visaType,
+        entryDate: visaEntry, allowedDays: visaDays,
+        notes: '', created: Date.now(), tripId: trip.id,
+      });
+    }
+
+    // Auto-create countdown from end date
+    if (endDate) {
+      if (!state.countdowns) state.countdowns = [];
+      state.countdowns.push({
+        id: uid(), label: 'leaving ' + (location || name), date: endDate,
+        emoji: '✈️', created: Date.now(), tripId: trip.id, autoFromTrip: true,
+      });
+    }
   }
 
   saveState();
@@ -2349,6 +2472,9 @@ function saveTrip() {
 function deleteTrip() {
   if (!editingTripId) return;
   state.expenses = state.expenses.filter(e => e.tripId !== editingTripId);
+  // Clean up linked countdowns and visas
+  if (state.countdowns) state.countdowns = state.countdowns.filter(c => !(c.tripId === editingTripId && c.autoFromTrip));
+  if (state.visas) state.visas = state.visas.filter(v => v.tripId !== editingTripId);
   state.trips = state.trips.filter(t => t.id !== editingTripId);
   if (state.activeTrip === editingTripId) {
     state.activeTrip = state.trips.length > 0 ? state.trips[0].id : null;
@@ -3403,6 +3529,7 @@ $('tripCancelBtn').addEventListener('click', closeTripModal);
 $('tripSaveBtn').addEventListener('click', saveTrip);
 $('tripDeleteBtn').addEventListener('click', deleteTrip);
 $('tripModal').addEventListener('click', (e) => { if (e.target === $('tripModal')) closeTripModal(); });
+$('tripVisaToggle').addEventListener('click', toggleTripVisa);
 
 // Accounts
 $('newAccountBtn').addEventListener('click', () => openAccountModal());
