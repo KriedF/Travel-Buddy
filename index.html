@@ -36,7 +36,6 @@ html, body {
   overflow-x: hidden;
 }
 
-/* --- LAYOUT --- */
 .app {
   max-width: 480px;
   margin: 0 auto;
@@ -82,21 +81,21 @@ nav button {
   border: none;
   color: var(--text-dim);
   font-family: inherit;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.06em;
-  padding: 8px 20px;
+  padding: 8px 14px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   transition: color 0.2s;
-  min-width: 72px;
+  min-width: 62px;
 }
 
 nav button.active { color: var(--accent); }
-nav button .icon { font-size: 1.4rem; }
+nav button .icon { font-size: 1.3rem; }
 
 /* --- CARDS --- */
 .card {
@@ -114,7 +113,7 @@ nav button .icon { font-size: 1.4rem; }
   margin-bottom: 8px;
 }
 
-/* --- DAILY VIBE (the gentle progress) --- */
+/* --- DAILY VIBE --- */
 .vibe-bar-track {
   width: 100%;
   height: 14px;
@@ -224,6 +223,44 @@ nav button .icon { font-size: 1.4rem; }
 .note-input:focus { border-color: var(--accent); }
 .note-input::placeholder { color: var(--text-dim); }
 
+/* --- ACCOUNT PICKER (in log view) --- */
+.account-picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.account-picker::-webkit-scrollbar { display: none; }
+
+.acct-chip {
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: 99px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.acct-chip:hover { background: var(--accent-soft); }
+.acct-chip.selected { border-color: var(--accent); background: var(--accent-soft); }
+
+.acct-chip .acct-balance {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-left: 6px;
+}
+
 .log-btn {
   width: 100%;
   background: var(--accent);
@@ -264,11 +301,11 @@ nav button .icon { font-size: 1.4rem; }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* --- HISTORY --- */
+/* --- EXPENSE ITEMS --- */
 .expense-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 14px 0;
   border-bottom: 1px solid var(--surface2);
 }
@@ -301,7 +338,7 @@ nav button .icon { font-size: 1.4rem; }
 }
 
 .expense-meta {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
   margin-top: 2px;
 }
@@ -367,7 +404,63 @@ nav button .icon { font-size: 1.4rem; }
 
 .new-trip-btn:hover { border-color: var(--accent-soft); }
 
-/* --- FORMS (trip setup, settings) --- */
+/* --- WALLET / ACCOUNTS VIEW --- */
+.account-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-info h3 {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.account-info .account-sub {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.account-balance {
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.account-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  justify-content: flex-end;
+}
+
+.account-action-btn {
+  background: var(--surface2);
+  border: none;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.account-action-btn:hover { color: var(--text); background: var(--accent-soft); }
+
+.wallet-total {
+  text-align: center;
+  padding: 16px 0 8px;
+}
+
+.wallet-total .card-label { margin-bottom: 4px; }
+
+/* --- FORMS --- */
 .form-group {
   margin-bottom: 16px;
 }
@@ -426,6 +519,56 @@ nav button .icon { font-size: 1.4rem; }
   cursor: pointer;
 }
 
+/* --- TRANSACTION LOG (in wallet) --- */
+.txn-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--surface2);
+}
+
+.txn-item:last-child { border-bottom: none; }
+
+.txn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.txn-icon.txn-in { background: rgba(107, 203, 139, 0.15); }
+.txn-icon.txn-out { background: rgba(212, 120, 156, 0.15); }
+
+.txn-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.txn-note {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.txn-meta {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.txn-amount {
+  font-size: 0.95rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.txn-amount.positive { color: var(--green); }
+.txn-amount.negative { color: var(--text); }
+
 /* --- EMPTY STATES --- */
 .empty {
   text-align: center;
@@ -438,7 +581,6 @@ nav button .icon { font-size: 1.4rem; }
 
 .empty .emoji { font-size: 2rem; margin-bottom: 12px; }
 
-/* --- SECTION TITLES --- */
 .section-title {
   font-size: 0.82rem;
   color: var(--text-dim);
@@ -447,8 +589,7 @@ nav button .icon { font-size: 1.4rem; }
   margin: 20px 0 12px;
 }
 
-/* --- VIEWS (show/hide) --- */
-.view { display: none; }
+.view { display: none; padding-top: 8px; }
 .view.active { display: block; }
 
 /* --- MODAL OVERLAY --- */
@@ -496,9 +637,7 @@ nav button .icon { font-size: 1.4rem; }
   color: var(--text-dim);
 }
 
-.week-day .day-label {
-  margin-bottom: 4px;
-}
+.week-day .day-label { margin-bottom: 4px; }
 
 .week-day .day-dot {
   width: 28px;
@@ -514,9 +653,7 @@ nav button .icon { font-size: 1.4rem; }
 }
 
 /* --- DATA EXPORT --- */
-.settings-section {
-  margin-top: 20px;
-}
+.settings-section { margin-top: 20px; }
 
 .settings-btn {
   width: 100%;
@@ -534,9 +671,6 @@ nav button .icon { font-size: 1.4rem; }
 }
 
 .settings-btn:hover { border-color: var(--accent-soft); }
-
-/* --- SCROLL HINT --- */
-.view { padding-top: 8px; }
 </style>
 </head>
 <body>
@@ -565,6 +699,15 @@ nav button .icon { font-size: 1.4rem; }
         <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
       </div>
       <input type="text" class="note-input" id="noteInput" placeholder="quick note (optional)" maxlength="60">
+      <div class="card-label">paid from</div>
+      <div class="account-picker" id="accountPicker"></div>
+      <div id="convertWrap" style="display:none; margin-bottom: 14px;">
+        <div class="card-label" id="convertLabel">charged to your account</div>
+        <div class="amount-input-wrap" style="margin-bottom: 0;">
+          <input type="number" id="convertAmount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" style="font-size: 1.3rem;">
+        </div>
+        <div class="vibe-message" id="convertHint" style="margin-top: 6px; font-size: 0.76rem;"></div>
+      </div>
       <button class="log-btn" id="logBtn" disabled>log it</button>
     </div>
   </div>
@@ -585,6 +728,21 @@ nav button .icon { font-size: 1.4rem; }
     <div class="section-title">today's expenses</div>
     <div class="card" id="todayExpensesList">
       <div class="empty"><div class="emoji">🌱</div>nothing logged today yet<br>that's okay</div>
+    </div>
+  </div>
+
+  <!-- ===== WALLET VIEW ===== -->
+  <div class="view" id="viewWallet">
+    <div class="wallet-total">
+      <div class="card-label">total across all accounts</div>
+      <div class="big-number"><span id="walletTotal">0</span></div>
+    </div>
+    <div id="accountsList"></div>
+    <button class="new-trip-btn" id="newAccountBtn">+ add account</button>
+
+    <div class="section-title">recent account activity</div>
+    <div class="card" id="txnList">
+      <div class="empty"><div class="emoji">💳</div>add money to an account to see activity here</div>
     </div>
   </div>
 
@@ -613,6 +771,7 @@ nav button .icon { font-size: 1.4rem; }
 <nav>
   <button class="active" data-view="viewLog"><span class="icon">✏️</span>log</button>
   <button data-view="viewToday"><span class="icon">📊</span>today</button>
+  <button data-view="viewWallet"><span class="icon">💳</span>wallet</button>
   <button data-view="viewTrips"><span class="icon">🗺️</span>trips</button>
   <button data-view="viewHistory"><span class="icon">📋</span>history</button>
 </nav>
@@ -647,6 +806,51 @@ nav button .icon { font-size: 1.4rem; }
   </div>
 </div>
 
+<!-- MODAL: Add/Edit Account -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal-sheet">
+    <h2 id="accountModalTitle">new account</h2>
+    <div class="form-group">
+      <label>account name</label>
+      <input type="text" id="accountName" placeholder="e.g. Wise" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>current balance</label>
+      <input type="number" id="accountBalance" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>currency symbol</label>
+      <input type="text" id="accountCurrency" placeholder="$" maxlength="4" value="$">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="accountCancelBtn">cancel</button>
+      <button class="btn-primary" id="accountSaveBtn">save</button>
+    </div>
+    <div class="btn-row" id="accountDeleteRow" style="display:none; margin-top: 8px;">
+      <button class="btn-secondary" id="accountDeleteBtn" style="color: var(--rose);">delete account</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Money -->
+<div class="modal-overlay" id="addMoneyModal">
+  <div class="modal-sheet">
+    <h2 id="addMoneyTitle">add money</h2>
+    <div class="form-group">
+      <label>amount to add</label>
+      <input type="number" id="addMoneyAmount" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>note (optional)</label>
+      <input type="text" id="addMoneyNote" placeholder="e.g. payday, transfer" maxlength="40">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="addMoneyCancelBtn">cancel</button>
+      <button class="btn-primary" id="addMoneySaveBtn">add money</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -665,6 +869,15 @@ const CATEGORIES = [
   { id: 'other',     emoji: '📦', label: 'other' },
 ];
 
+const DEFAULT_ACCOUNTS = [
+  { id: 'halifax',  name: 'Halifax',  balance: 0, currency: '£' },
+  { id: 'lloyds',   name: 'Lloyds',   balance: 0, currency: '£' },
+  { id: 'simplii',  name: 'Simplii',  balance: 0, currency: 'C$' },
+  { id: 'wise',     name: 'Wise',     balance: 0, currency: '$' },
+  { id: 'koho',     name: 'Koho',     balance: 0, currency: 'C$' },
+  { id: 'td',       name: 'TD',       balance: 0, currency: 'C$' },
+];
+
 const VIBE_MESSAGES = {
   none:     'start logging whenever you\'re ready',
   low:      'light spending day — nice and easy',
@@ -679,13 +892,27 @@ const VIBE_MESSAGES = {
 let state = loadState();
 
 function defaultState() {
-  return { trips: [], expenses: [], activeTrip: null };
+  return {
+    trips: [],
+    expenses: [],
+    accounts: DEFAULT_ACCOUNTS.map(a => ({ ...a, id: uid(), created: Date.now() })),
+    transactions: [], // { id, accountId, amount, type: 'deposit'|'expense', note, date, timestamp, expenseId? }
+    activeTrip: null,
+  };
 }
 
 function loadState() {
   try {
     const raw = localStorage.getItem('travelbuddy');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const s = JSON.parse(raw);
+      // Migration: add accounts + transactions if missing
+      if (!s.accounts) {
+        s.accounts = DEFAULT_ACCOUNTS.map(a => ({ ...a, id: uid(), created: Date.now() }));
+      }
+      if (!s.transactions) s.transactions = [];
+      return s;
+    }
   } catch (e) {}
   return defaultState();
 }
@@ -718,7 +945,12 @@ function getCategoryById(id) {
   return CATEGORIES.find(c => c.id === id) || CATEGORIES[5];
 }
 
+function getAccountById(id) {
+  return state.accounts.find(a => a.id === id) || null;
+}
+
 function formatMoney(n) {
+  if (n === undefined || n === null || isNaN(n)) return '0';
   return n % 1 === 0 ? n.toString() : n.toFixed(2);
 }
 
@@ -729,7 +961,16 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
 // --- Categories ---
+let selectedCategory = null;
+let selectedAccountId = null;
+
 function renderCategories() {
   const grid = $('categoryGrid');
   grid.innerHTML = CATEGORIES.map(c => `
@@ -749,11 +990,57 @@ function renderCategories() {
   });
 }
 
-let selectedCategory = null;
+// --- Account Picker (in log view) ---
+function renderAccountPicker() {
+  const picker = $('accountPicker');
+  if (state.accounts.length === 0) {
+    picker.innerHTML = '<span style="color: var(--text-dim); font-size: 0.82rem;">add accounts in the wallet tab</span>';
+    return;
+  }
+
+  picker.innerHTML = state.accounts.map(a => `
+    <button class="acct-chip ${a.id === selectedAccountId ? 'selected' : ''}" data-acct="${a.id}">
+      ${escHtml(a.name)}<span class="acct-balance">${a.currency}${formatMoney(a.balance)}</span>
+    </button>
+  `).join('');
+
+  picker.querySelectorAll('.acct-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      picker.querySelectorAll('.acct-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedAccountId = chip.dataset.acct;
+      updateLogBtn();
+      updateConvertField();
+    });
+  });
+}
+
+function needsCurrencyConvert() {
+  const trip = getActiveTrip();
+  if (!trip || !selectedAccountId) return false;
+  const acct = getAccountById(selectedAccountId);
+  if (!acct) return false;
+  return acct.currency !== trip.currency;
+}
+
+function updateConvertField() {
+  const wrap = $('convertWrap');
+  if (needsCurrencyConvert()) {
+    const trip = getActiveTrip();
+    const acct = getAccountById(selectedAccountId);
+    wrap.style.display = 'block';
+    $('convertLabel').textContent = `how much was charged in ${acct.currency}?`;
+    $('convertHint').textContent = `trip is in ${trip.currency} — enter what ${acct.name} actually charged you`;
+  } else {
+    wrap.style.display = 'none';
+    $('convertAmount').value = '';
+  }
+}
 
 function updateLogBtn() {
   const amount = parseFloat($('amountInput').value);
-  $('logBtn').disabled = !(selectedCategory && amount > 0 && getActiveTrip());
+  const hasAccount = state.accounts.length === 0 || selectedAccountId; // allow if no accounts exist
+  $('logBtn').disabled = !(selectedCategory && amount > 0 && getActiveTrip() && hasAccount);
 }
 
 // --- Daily vibe ---
@@ -787,7 +1074,6 @@ function updateDailyVibe() {
   const pct = Math.min((spent / budget) * 100, 100);
   $('vibeFill').style.width = pct + '%';
 
-  // Gentle color transitions
   if (spent === 0) {
     $('vibeFill').style.background = 'var(--green)';
     $('vibeMessage').textContent = VIBE_MESSAGES.none;
@@ -806,7 +1092,6 @@ function updateDailyVibe() {
     $('vibeMessage').textContent = VIBE_MESSAGES.over;
   }
 
-  // Today view
   const left = Math.max(0, budget - spent);
   $('todayLeft').textContent = formatMoney(left);
   $('todayVibeMsg').textContent = spent > budget
@@ -832,31 +1117,58 @@ function logExpense() {
     note: $('noteInput').value.trim() || getCategoryById(selectedCategory).label,
     date: todayStr(),
     timestamp: Date.now(),
+    accountId: selectedAccountId || null,
   };
 
   state.expenses.push(expense);
+
+  // Deduct from account if one was selected
+  if (selectedAccountId) {
+    const account = getAccountById(selectedAccountId);
+    if (account) {
+      // If currencies differ, use the converted amount for the account
+      let deductAmount = amount;
+      if (needsCurrencyConvert()) {
+        const convertedAmt = parseFloat($('convertAmount').value);
+        if (!convertedAmt || convertedAmt <= 0) {
+          showToast('enter the amount charged to your account');
+          state.expenses.pop(); // undo the expense we just added
+          return;
+        }
+        deductAmount = convertedAmt;
+        expense.convertedAmount = convertedAmt;
+        expense.accountCurrency = account.currency;
+      }
+      account.balance -= deductAmount;
+      // Record transaction
+      state.transactions.push({
+        id: uid(),
+        accountId: selectedAccountId,
+        amount: -deductAmount,
+        type: 'expense',
+        note: expense.note,
+        date: todayStr(),
+        timestamp: Date.now(),
+        expenseId: expense.id,
+      });
+    }
+  }
+
   saveState();
 
   // Reset form
   $('amountInput').value = '';
   $('noteInput').value = '';
+  $('convertAmount').value = '';
   selectedCategory = null;
   $('categoryGrid').querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  // Keep account selected for convenience
   updateLogBtn();
 
-  const messages = [
-    'logged ✓',
-    'got it ✓',
-    'noted ✓',
-    'saved ✓',
-    'tracked ✓',
-  ];
+  const messages = ['logged ✓', 'got it ✓', 'noted ✓', 'saved ✓', 'tracked ✓'];
   showToast(messages[Math.floor(Math.random() * messages.length)]);
 
-  updateDailyVibe();
-  renderTodayExpenses();
-  renderHistory();
-  renderWeekGrid();
+  refreshAll();
 }
 
 // --- Today's expenses list ---
@@ -874,12 +1186,15 @@ function renderTodayExpenses() {
   container.innerHTML = expenses.map(e => {
     const cat = getCategoryById(e.category);
     const time = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const acct = e.accountId ? getAccountById(e.accountId) : null;
+    const acctLabel = acct ? ' · ' + acct.name : '';
+    const convertLabel = (e.convertedAmount && e.accountCurrency) ? ` (${e.accountCurrency}${formatMoney(e.convertedAmount)})` : '';
     return `
       <div class="expense-item">
         <div class="expense-emoji">${cat.emoji}</div>
         <div class="expense-details">
           <div class="expense-note">${escHtml(e.note)}</div>
-          <div class="expense-meta">${cat.label} · ${time}</div>
+          <div class="expense-meta">${cat.label}${acctLabel}${convertLabel} · ${time}</div>
         </div>
         <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
         <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
@@ -888,16 +1203,30 @@ function renderTodayExpenses() {
   }).join('');
 
   container.querySelectorAll('.expense-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.expenses = state.expenses.filter(e => e.id !== btn.dataset.id);
-      saveState();
-      updateDailyVibe();
-      renderTodayExpenses();
-      renderHistory();
-      renderWeekGrid();
-      showToast('removed');
-    });
+    btn.addEventListener('click', () => deleteExpense(btn.dataset.id));
   });
+}
+
+function deleteExpense(expenseId) {
+  const expense = state.expenses.find(e => e.id === expenseId);
+  if (!expense) return;
+
+  // Refund to account if it was linked
+  if (expense.accountId) {
+    const account = getAccountById(expense.accountId);
+    if (account) {
+      // Refund the converted amount if it was a cross-currency expense
+      const refundAmount = expense.convertedAmount || expense.amount;
+      account.balance += refundAmount;
+      // Remove the transaction
+      state.transactions = state.transactions.filter(t => t.expenseId !== expenseId);
+    }
+  }
+
+  state.expenses = state.expenses.filter(e => e.id !== expenseId);
+  saveState();
+  refreshAll();
+  showToast('removed — balance restored');
 }
 
 // --- Week grid ---
@@ -907,15 +1236,13 @@ function renderWeekGrid() {
   if (!trip) { grid.innerHTML = ''; return; }
 
   const today = new Date();
-  const dayNames = ['S','M','T','W','T','F','S'];
   const budget = trip.dailyBudget || 0;
-
-  // Show Mon-Sun of current week
-  const dayOfWeek = today.getDay(); // 0=Sun
+  const dayOfWeek = today.getDay();
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
 
   let html = '';
+  const labels = ['M','T','W','T','F','S','S'];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -926,8 +1253,6 @@ function renderWeekGrid() {
     const isFuture = d > today;
 
     let dotColor = 'var(--surface2)';
-    let dotText = '';
-
     if (!isFuture && spent > 0 && budget > 0) {
       const ratio = spent / budget;
       if (ratio <= 0.5) dotColor = 'var(--green)';
@@ -936,13 +1261,11 @@ function renderWeekGrid() {
       else dotColor = 'var(--rose)';
     }
 
-    if (!isFuture && spent > 0) {
-      dotText = Math.round(spent).toString();
-    }
+    const dotText = (!isFuture && spent > 0) ? Math.round(spent).toString() : '';
 
     html += `
       <div class="week-day">
-        <div class="day-label">${dayNames[(i + 1) % 7]}</div>
+        <div class="day-label">${labels[i]}</div>
         <div class="day-dot" style="background: ${dotColor}; ${isToday ? 'box-shadow: 0 0 0 2px var(--accent);' : ''}">${dotText}</div>
       </div>
     `;
@@ -969,7 +1292,6 @@ function renderHistory() {
     return;
   }
 
-  // Group by date
   const groups = {};
   expenses.forEach(e => {
     if (!groups[e.date]) groups[e.date] = [];
@@ -985,12 +1307,14 @@ function renderHistory() {
     groups[date].forEach(e => {
       const cat = getCategoryById(e.category);
       const time = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const acct = e.accountId ? getAccountById(e.accountId) : null;
+      const acctLabel = acct ? ' · ' + acct.name : '';
       html += `
         <div class="expense-item">
           <div class="expense-emoji">${cat.emoji}</div>
           <div class="expense-details">
             <div class="expense-note">${escHtml(e.note)}</div>
-            <div class="expense-meta">${cat.label} · ${time}</div>
+            <div class="expense-meta">${cat.label}${acctLabel} · ${time}</div>
           </div>
           <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
           <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
@@ -1003,15 +1327,7 @@ function renderHistory() {
   container.innerHTML = html;
 
   container.querySelectorAll('.expense-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.expenses = state.expenses.filter(e => e.id !== btn.dataset.id);
-      saveState();
-      updateDailyVibe();
-      renderTodayExpenses();
-      renderHistory();
-      renderWeekGrid();
-      showToast('removed');
-    });
+    btn.addEventListener('click', () => deleteExpense(btn.dataset.id));
   });
 }
 
@@ -1025,7 +1341,194 @@ function formatDateLabel(dateStr) {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
-// --- Trips ---
+// ============================================================
+//  WALLET / ACCOUNTS
+// ============================================================
+
+function renderAccounts() {
+  const list = $('accountsList');
+
+  // Total
+  const totalByCurrency = {};
+  state.accounts.forEach(a => {
+    const c = a.currency || '$';
+    totalByCurrency[c] = (totalByCurrency[c] || 0) + a.balance;
+  });
+  const totalStr = Object.entries(totalByCurrency)
+    .map(([c, v]) => c + formatMoney(v))
+    .join(' + ') || '0';
+  $('walletTotal').textContent = totalStr;
+
+  if (state.accounts.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="emoji">💳</div>no accounts yet<br>tap "add account" below</div>';
+    return;
+  }
+
+  list.innerHTML = state.accounts.map(a => {
+    const curr = a.currency || '$';
+    // Count expenses from this account
+    const expCount = state.expenses.filter(e => e.accountId === a.id).length;
+    return `
+      <div class="account-card">
+        <div class="account-info">
+          <h3>${escHtml(a.name)}</h3>
+          <div class="account-sub">${expCount} expense${expCount !== 1 ? 's' : ''} logged</div>
+        </div>
+        <div>
+          <div class="account-balance">${curr}${formatMoney(a.balance)}</div>
+          <div class="account-actions">
+            <button class="account-action-btn" data-action="add" data-id="${a.id}">+ add</button>
+            <button class="account-action-btn" data-action="edit" data-id="${a.id}">edit</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.account-action-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      if (btn.dataset.action === 'add') {
+        openAddMoneyModal(id);
+      } else {
+        openAccountModal(id);
+      }
+    });
+  });
+}
+
+function renderTransactions() {
+  const container = $('txnList');
+  const recent = state.transactions.slice().sort((a, b) => b.timestamp - a.timestamp).slice(0, 30);
+
+  if (recent.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="emoji">💳</div>add money to an account to see activity here</div>';
+    return;
+  }
+
+  container.innerHTML = recent.map(t => {
+    const acct = getAccountById(t.accountId);
+    const acctName = acct ? acct.name : 'unknown';
+    const isDeposit = t.type === 'deposit';
+    const time = new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const curr = acct ? (acct.currency || '$') : '$';
+    return `
+      <div class="txn-item">
+        <div class="txn-icon ${isDeposit ? 'txn-in' : 'txn-out'}">${isDeposit ? '↓' : '↑'}</div>
+        <div class="txn-details">
+          <div class="txn-note">${escHtml(t.note || (isDeposit ? 'deposit' : 'expense'))}</div>
+          <div class="txn-meta">${acctName} · ${formatDateLabel(t.date)} · ${time}</div>
+        </div>
+        <div class="txn-amount ${isDeposit ? 'positive' : 'negative'}">${isDeposit ? '+' : ''}${curr}${formatMoney(t.amount)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- Account modal ---
+let editingAccountId = null;
+
+function openAccountModal(accountId = null) {
+  editingAccountId = accountId;
+  const acct = accountId ? getAccountById(accountId) : null;
+
+  $('accountModalTitle').textContent = acct ? 'edit account' : 'new account';
+  $('accountName').value = acct ? acct.name : '';
+  $('accountBalance').value = acct ? acct.balance : '';
+  $('accountCurrency').value = acct ? (acct.currency || '$') : '$';
+  $('accountDeleteRow').style.display = acct ? 'flex' : 'none';
+  $('accountModal').classList.add('show');
+}
+
+function closeAccountModal() {
+  $('accountModal').classList.remove('show');
+  editingAccountId = null;
+}
+
+function saveAccount() {
+  const name = $('accountName').value.trim();
+  if (!name) { showToast('give it a name'); return; }
+
+  const balance = parseFloat($('accountBalance').value) || 0;
+  const currency = $('accountCurrency').value.trim() || '$';
+
+  if (editingAccountId) {
+    const acct = getAccountById(editingAccountId);
+    if (acct) {
+      acct.name = name;
+      acct.balance = balance;
+      acct.currency = currency;
+    }
+  } else {
+    state.accounts.push({ id: uid(), name, balance, currency, created: Date.now() });
+  }
+
+  saveState();
+  closeAccountModal();
+  refreshAll();
+  showToast(editingAccountId ? 'account updated' : 'account added');
+}
+
+function deleteAccount() {
+  if (!editingAccountId) return;
+  state.accounts = state.accounts.filter(a => a.id !== editingAccountId);
+  state.transactions = state.transactions.filter(t => t.accountId !== editingAccountId);
+  // Clear account from expenses (don't delete the expenses)
+  state.expenses.forEach(e => { if (e.accountId === editingAccountId) e.accountId = null; });
+  if (selectedAccountId === editingAccountId) selectedAccountId = null;
+
+  saveState();
+  closeAccountModal();
+  refreshAll();
+  showToast('account removed');
+}
+
+// --- Add money modal ---
+let addMoneyAccountId = null;
+
+function openAddMoneyModal(accountId) {
+  addMoneyAccountId = accountId;
+  const acct = getAccountById(accountId);
+  $('addMoneyTitle').textContent = 'add money to ' + (acct ? acct.name : 'account');
+  $('addMoneyAmount').value = '';
+  $('addMoneyNote').value = '';
+  $('addMoneyModal').classList.add('show');
+}
+
+function closeAddMoneyModal() {
+  $('addMoneyModal').classList.remove('show');
+  addMoneyAccountId = null;
+}
+
+function saveAddMoney() {
+  const amount = parseFloat($('addMoneyAmount').value);
+  if (!amount || amount <= 0) { showToast('enter an amount'); return; }
+
+  const acct = getAccountById(addMoneyAccountId);
+  if (!acct) return;
+
+  acct.balance += amount;
+  state.transactions.push({
+    id: uid(),
+    accountId: addMoneyAccountId,
+    amount: amount,
+    type: 'deposit',
+    note: $('addMoneyNote').value.trim() || 'deposit',
+    date: todayStr(),
+    timestamp: Date.now(),
+  });
+
+  saveState();
+  closeAddMoneyModal();
+  refreshAll();
+  showToast('money added to ' + acct.name);
+}
+
+// ============================================================
+//  TRIPS
+// ============================================================
+
 let editingTripId = null;
 
 function renderTrips() {
@@ -1053,18 +1556,12 @@ function renderTrips() {
   list.querySelectorAll('.trip-card').forEach(card => {
     card.addEventListener('click', () => {
       const id = card.dataset.tripId;
-      // Single tap to activate, double tap / long press to edit
       if (state.activeTrip === id) {
-        // Already active — open edit
         openTripModal(id);
       } else {
         state.activeTrip = id;
         saveState();
-        renderTrips();
-        updateDailyVibe();
-        renderTodayExpenses();
-        renderHistory();
-        renderWeekGrid();
+        refreshAll();
         showToast('switched trip');
       }
     });
@@ -1113,17 +1610,12 @@ function saveTrip() {
 
   saveState();
   closeTripModal();
-  renderTrips();
-  updateDailyVibe();
+  refreshAll();
   showToast(editingTripId ? 'trip updated' : 'trip created');
 }
 
 function deleteTrip() {
   if (!editingTripId) return;
-  const trip = state.trips.find(t => t.id === editingTripId);
-  if (!trip) return;
-
-  // Remove trip + its expenses
   state.expenses = state.expenses.filter(e => e.tripId !== editingTripId);
   state.trips = state.trips.filter(t => t.id !== editingTripId);
   if (state.activeTrip === editingTripId) {
@@ -1132,11 +1624,7 @@ function deleteTrip() {
 
   saveState();
   closeTripModal();
-  renderTrips();
-  updateDailyVibe();
-  renderTodayExpenses();
-  renderHistory();
-  renderWeekGrid();
+  refreshAll();
   showToast('trip deleted');
 }
 
@@ -1158,6 +1646,8 @@ function importData(file) {
     try {
       const data = JSON.parse(reader.result);
       if (data.trips && data.expenses) {
+        if (!data.accounts) data.accounts = [];
+        if (!data.transactions) data.transactions = [];
         state = data;
         saveState();
         renderAll();
@@ -1181,21 +1671,28 @@ function switchView(viewId) {
   });
 }
 
-// --- Util ---
-function escHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
 // --- Render all ---
 function renderAll() {
   renderCategories();
+  renderAccountPicker();
   updateDailyVibe();
   renderTodayExpenses();
   renderTrips();
   renderHistory();
   renderWeekGrid();
+  renderAccounts();
+  renderTransactions();
+}
+
+function refreshAll() {
+  renderAccountPicker();
+  updateDailyVibe();
+  renderTodayExpenses();
+  renderTrips();
+  renderHistory();
+  renderWeekGrid();
+  renderAccounts();
+  renderTransactions();
 }
 
 // --- Wire up events ---
@@ -1203,12 +1700,29 @@ document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
 
-$('amountInput').addEventListener('input', updateLogBtn);
+$('amountInput').addEventListener('input', () => { updateLogBtn(); updateConvertField(); });
 $('logBtn').addEventListener('click', logExpense);
+
+// Trips
 $('newTripBtn').addEventListener('click', () => openTripModal());
 $('tripCancelBtn').addEventListener('click', closeTripModal);
 $('tripSaveBtn').addEventListener('click', saveTrip);
 $('tripDeleteBtn').addEventListener('click', deleteTrip);
+$('tripModal').addEventListener('click', (e) => { if (e.target === $('tripModal')) closeTripModal(); });
+
+// Accounts
+$('newAccountBtn').addEventListener('click', () => openAccountModal());
+$('accountCancelBtn').addEventListener('click', closeAccountModal);
+$('accountSaveBtn').addEventListener('click', saveAccount);
+$('accountDeleteBtn').addEventListener('click', deleteAccount);
+$('accountModal').addEventListener('click', (e) => { if (e.target === $('accountModal')) closeAccountModal(); });
+
+// Add money
+$('addMoneyCancelBtn').addEventListener('click', closeAddMoneyModal);
+$('addMoneySaveBtn').addEventListener('click', saveAddMoney);
+$('addMoneyModal').addEventListener('click', (e) => { if (e.target === $('addMoneyModal')) closeAddMoneyModal(); });
+
+// Export / Import
 $('exportBtn').addEventListener('click', exportData);
 $('importBtn').addEventListener('click', () => $('importFile').click());
 $('importFile').addEventListener('change', (e) => {
@@ -1216,19 +1730,11 @@ $('importFile').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
-// Close modal on overlay click
-$('tripModal').addEventListener('click', (e) => {
-  if (e.target === $('tripModal')) closeTripModal();
-});
-
 // Enter key to log
-$('amountInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); logExpense(); }
-});
-
-$('noteInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); logExpense(); }
-});
+$('amountInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); logExpense(); } });
+$('noteInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); logExpense(); } });
+$('addMoneyAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveAddMoney(); } });
+$('convertAmount').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); logExpense(); } });
 
 // --- Init ---
 renderAll();
