@@ -1413,6 +1413,7 @@ nav button .icon { font-size: 1.3rem; }
     <div class="form-group">
       <label>where are you?</label>
       <input type="text" id="tripLocation" placeholder="e.g. Bangkok" maxlength="40">
+      <div id="tripLocationVisaHint" style="font-size: 0.7rem; color: var(--green); margin-top: 4px; min-height: 0;"></div>
     </div>
     <div class="form-group">
       <label>daily budget</label>
@@ -2323,6 +2324,12 @@ function renderTrips() {
         <div class="trip-meta">
           ${t.location ? t.location + ' · ' : ''}${curr}${formatMoney(t.dailyBudget || 0)}/day · ${expCount} expenses · ${curr}${formatMoney(totalSpent)} total
         </div>
+        ${t.endDate ? (() => {
+          const diff = Math.ceil((new Date(t.endDate) - new Date(todayStr())) / 86400000);
+          if (diff > 0) return `<div class="trip-meta" style="margin-top: 4px; color: var(--accent);">✈️ leaving in ${diff} day${diff !== 1 ? 's' : ''}</div>`;
+          if (diff === 0) return `<div class="trip-meta" style="margin-top: 4px; color: var(--amber);">✈️ leaving today!</div>`;
+          return `<div class="trip-meta" style="margin-top: 4px; color: var(--text-dim);">✈️ left ${Math.abs(diff)} day${Math.abs(diff) !== 1 ? 's' : ''} ago</div>`;
+        })() : ''}
         ${t.notes ? `<div class="trip-meta" style="margin-top: 4px; font-style: italic; opacity: 0.7;">📝 ${escHtml(t.notes.slice(0, 60))}${t.notes.length > 60 ? '...' : ''}</div>` : ''}
       </div>
     `;
@@ -2353,7 +2360,7 @@ function openTripModal(tripId = null) {
   $('tripBudget').value = trip ? (trip.dailyBudget || '') : '';
   $('tripCurrency').value = trip ? (trip.currency || '$') : '$';
   $('tripDeleteRow').style.display = trip ? 'flex' : 'none';
-  $('tripNotesWrap').style.display = trip ? 'block' : 'none';
+  $('tripNotesWrap').style.display = 'block';
   $('tripNotes').value = trip ? (trip.notes || '') : '';
 
   // End date (leaving on)
@@ -2374,18 +2381,24 @@ function openTripModal(tripId = null) {
   $('tripVisaType').value = '';
   $('tripVisaHint').textContent = '';
 
-  // Auto-fill visa from location when typing
-  $('tripLocation').oninput = () => {
+  // Auto-fill visa from location when typing + persistent hint under location
+  const updateLocationHint = () => {
     const loc = $('tripLocation').value.trim();
     const info = lookupUkVisa(loc);
-    if (info && isNew) {
-      $('tripVisaDays').value = info.days;
-      $('tripVisaType').value = info.type;
-      $('tripVisaHint').textContent = `🇬🇧 ${info.days} days — ${info.type}`;
+    if (info) {
+      $('tripLocationVisaHint').textContent = `🇬🇧 UK citizens: ${info.days} days — ${info.type}`;
+      if (isNew) {
+        $('tripVisaDays').value = info.days;
+        $('tripVisaType').value = info.type;
+        $('tripVisaHint').textContent = `🇬🇧 ${info.days} days — ${info.type}`;
+      }
     } else {
-      $('tripVisaHint').textContent = '';
+      $('tripLocationVisaHint').textContent = loc.length > 2 ? 'not in visa database — check gov.uk' : '';
+      if (isNew) $('tripVisaHint').textContent = '';
     }
   };
+  $('tripLocation').oninput = updateLocationHint;
+  updateLocationHint(); // Show hint immediately if location already has a value
 
   $('tripModal').classList.add('show');
 }
