@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: travel-buddy
+    runtime: static
+    buildCommand: echo "no build needed"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache

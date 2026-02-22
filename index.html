@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Travel Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1a1a2e;
+  --surface: #22223a;
+  --surface2: #2a2a45;
+  --accent: #7c6fe0;
+  --accent-soft: #5a54a4;
+  --text: #e8e6f0;
+  --text-dim: #9994b8;
+  --green: #6bcb8b;
+  --amber: #e8b86d;
+  --rose: #d4789c;
+  --blue: #6ba3cb;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+html, body {
+  font-family: 'Lexend', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* --- LAYOUT --- */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+  padding-bottom: 100px;
+}
+
+header {
+  padding: 24px 0 8px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+header .trip-name {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* --- NAV --- */
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--surface2);
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 100;
+}
+
+nav button {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 8px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+  min-width: 72px;
+}
+
+nav button.active { color: var(--accent); }
+nav button .icon { font-size: 1.4rem; }
+
+/* --- CARDS --- */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.card-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+/* --- DAILY VIBE (the gentle progress) --- */
+.vibe-bar-track {
+  width: 100%;
+  height: 14px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.vibe-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease, background 0.6s ease;
+  background: var(--green);
+}
+
+.vibe-message {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  margin-top: 10px;
+  font-weight: 300;
+  min-height: 1.6em;
+}
+
+.big-number {
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.big-number .currency {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
+/* --- QUICK LOG --- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.cat-btn {
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 16px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+
+.cat-btn:hover, .cat-btn:focus { background: var(--accent-soft); }
+.cat-btn.selected { border-color: var(--accent); background: var(--accent-soft); }
+.cat-btn .emoji { font-size: 1.6rem; }
+
+.amount-input-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.amount-input-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.8rem;
+  font-weight: 500;
+  padding: 16px 20px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.amount-input-wrap input:focus { border-color: var(--accent); }
+.amount-input-wrap input::placeholder { color: var(--text-dim); font-weight: 300; }
+
+.note-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
+.note-input:focus { border-color: var(--accent); }
+.note-input::placeholder { color: var(--text-dim); }
+
+.log-btn {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 500;
+  padding: 16px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.log-btn:hover { opacity: 0.9; }
+.log-btn:active { transform: scale(0.98); }
+.log-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* --- TOAST --- */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 14px 24px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  z-index: 200;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  text-align: center;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* --- HISTORY --- */
+.expense-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--surface2);
+}
+
+.expense-item:last-child { border-bottom: none; }
+
+.expense-emoji {
+  font-size: 1.4rem;
+  width: 40px;
+  height: 40px;
+  background: var(--surface2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.expense-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.expense-note {
+  font-size: 0.88rem;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.expense-amount {
+  font-size: 1.05rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.expense-delete {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 6px;
+  font-size: 1rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.expense-delete:hover { opacity: 1; color: var(--rose); }
+
+/* --- TRIPS VIEW --- */
+.trip-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.trip-card.active-trip { border-color: var(--accent); }
+.trip-card:hover { border-color: var(--accent-soft); }
+
+.trip-card h3 {
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.trip-card .trip-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.new-trip-btn {
+  width: 100%;
+  background: var(--surface);
+  border: 2px dashed var(--surface2);
+  border-radius: var(--radius);
+  padding: 20px;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 10px;
+}
+
+.new-trip-btn:hover { border-color: var(--accent-soft); }
+
+/* --- FORMS (trip setup, settings) --- */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  flex: 1;
+  background: var(--surface2);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 14px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  flex: 1;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 14px;
+  cursor: pointer;
+}
+
+/* --- EMPTY STATES --- */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.empty .emoji { font-size: 2rem; margin-bottom: 12px; }
+
+/* --- SECTION TITLES --- */
+.section-title {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  font-weight: 400;
+  margin: 20px 0 12px;
+}
+
+/* --- VIEWS (show/hide) --- */
+.view { display: none; }
+.view.active { display: block; }
+
+/* --- MODAL OVERLAY --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.85);
+  z-index: 150;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal-sheet {
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 20px 40px;
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.modal-sheet h2 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* --- WEEK SUMMARY --- */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.week-day {
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.week-day .day-label {
+  margin-bottom: 4px;
+}
+
+.week-day .day-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* --- DATA EXPORT --- */
+.settings-section {
+  margin-top: 20px;
+}
+
+.settings-btn {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.settings-btn:hover { border-color: var(--accent-soft); }
+
+/* --- SCROLL HINT --- */
+.view { padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>travel buddy</h1>
+    <div class="trip-name" id="headerTripName">no trip yet</div>
+  </header>
+
+  <!-- ===== LOG VIEW ===== -->
+  <div class="view active" id="viewLog">
+    <div class="card" id="dailyVibeCard">
+      <div class="card-label">today's spending</div>
+      <div class="big-number"><span class="currency" id="logCurrency">$</span><span id="todaySpent">0</span></div>
+      <div class="vibe-bar-track">
+        <div class="vibe-bar-fill" id="vibeFill" style="width: 0%"></div>
+      </div>
+      <div class="vibe-message" id="vibeMessage">set up a trip to start tracking</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">what did you spend on?</div>
+      <div class="category-grid" id="categoryGrid"></div>
+      <div class="amount-input-wrap">
+        <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal" step="0.01" min="0">
+      </div>
+      <input type="text" class="note-input" id="noteInput" placeholder="quick note (optional)" maxlength="60">
+      <button class="log-btn" id="logBtn" disabled>log it</button>
+    </div>
+  </div>
+
+  <!-- ===== TODAY VIEW ===== -->
+  <div class="view" id="viewToday">
+    <div class="card">
+      <div class="card-label">left to spend today</div>
+      <div class="big-number"><span class="currency" id="todayCurrency">$</span><span id="todayLeft">0</span></div>
+      <div class="vibe-message" id="todayVibeMsg">you're doing great</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">this week at a glance</div>
+      <div class="week-grid" id="weekGrid"></div>
+    </div>
+
+    <div class="section-title">today's expenses</div>
+    <div class="card" id="todayExpensesList">
+      <div class="empty"><div class="emoji">🌱</div>nothing logged today yet<br>that's okay</div>
+    </div>
+  </div>
+
+  <!-- ===== TRIPS VIEW ===== -->
+  <div class="view" id="viewTrips">
+    <button class="new-trip-btn" id="newTripBtn">+ new trip</button>
+    <div id="tripsList"></div>
+
+    <div class="settings-section">
+      <div class="section-title">your data</div>
+      <button class="settings-btn" id="exportBtn">📦 export all data (JSON)</button>
+      <button class="settings-btn" id="importBtn">📂 import data</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+  </div>
+
+  <!-- ===== HISTORY VIEW ===== -->
+  <div class="view" id="viewHistory">
+    <div id="historyList">
+      <div class="empty"><div class="emoji">📝</div>expenses will show up here<br>most recent first</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="active" data-view="viewLog"><span class="icon">✏️</span>log</button>
+  <button data-view="viewToday"><span class="icon">📊</span>today</button>
+  <button data-view="viewTrips"><span class="icon">🗺️</span>trips</button>
+  <button data-view="viewHistory"><span class="icon">📋</span>history</button>
+</nav>
+
+<!-- MODAL: New/Edit Trip -->
+<div class="modal-overlay" id="tripModal">
+  <div class="modal-sheet">
+    <h2 id="tripModalTitle">new trip</h2>
+    <div class="form-group">
+      <label>trip name</label>
+      <input type="text" id="tripName" placeholder="e.g. Southeast Asia" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>where are you?</label>
+      <input type="text" id="tripLocation" placeholder="e.g. Bangkok" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>daily budget</label>
+      <input type="number" id="tripBudget" placeholder="50" inputmode="decimal" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>currency symbol</label>
+      <input type="text" id="tripCurrency" placeholder="$" maxlength="4" value="$">
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="tripCancelBtn">cancel</button>
+      <button class="btn-primary" id="tripSaveBtn">save trip</button>
+    </div>
+    <div class="btn-row" id="tripDeleteRow" style="display:none; margin-top: 8px;">
+      <button class="btn-secondary" id="tripDeleteBtn" style="color: var(--rose);">delete this trip</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  TRAVEL BUDDY — a gentle budget companion
+//  No shame. No guilt. Just awareness.
+// ============================================================
+
+const CATEGORIES = [
+  { id: 'food',      emoji: '🍜', label: 'food' },
+  { id: 'transport', emoji: '🚌', label: 'transport' },
+  { id: 'stay',      emoji: '🛏️', label: 'stay' },
+  { id: 'fun',       emoji: '✨', label: 'fun' },
+  { id: 'health',    emoji: '💊', label: 'health' },
+  { id: 'other',     emoji: '📦', label: 'other' },
+];
+
+const VIBE_MESSAGES = {
+  none:     'start logging whenever you\'re ready',
+  low:      'light spending day — nice and easy',
+  mid:      'steady day — you\'re doing your thing',
+  high:     'big spending day — sometimes that happens',
+  over:     'over your daily budget — no stress, tomorrow\'s a new day',
+  noTrip:   'set up a trip to start tracking',
+  noBudget: 'no daily budget set — just tracking for now',
+};
+
+// --- State ---
+let state = loadState();
+
+function defaultState() {
+  return { trips: [], expenses: [], activeTrip: null };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('travelbuddy');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem('travelbuddy', JSON.stringify(state));
+}
+
+// --- Helpers ---
+function $(id) { return document.getElementById(id); }
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function getActiveTrip() {
+  return state.trips.find(t => t.id === state.activeTrip) || null;
+}
+
+function getTodayExpenses() {
+  const today = todayStr();
+  const trip = getActiveTrip();
+  if (!trip) return [];
+  return state.expenses.filter(e => e.tripId === trip.id && e.date === today);
+}
+
+function getTodayTotal() {
+  return getTodayExpenses().reduce((s, e) => s + e.amount, 0);
+}
+
+function getCategoryById(id) {
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES[5];
+}
+
+function formatMoney(n) {
+  return n % 1 === 0 ? n.toString() : n.toFixed(2);
+}
+
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// --- Categories ---
+function renderCategories() {
+  const grid = $('categoryGrid');
+  grid.innerHTML = CATEGORIES.map(c => `
+    <button class="cat-btn" data-cat="${c.id}">
+      <span class="emoji">${c.emoji}</span>
+      ${c.label}
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCategory = btn.dataset.cat;
+      updateLogBtn();
+    });
+  });
+}
+
+let selectedCategory = null;
+
+function updateLogBtn() {
+  const amount = parseFloat($('amountInput').value);
+  $('logBtn').disabled = !(selectedCategory && amount > 0 && getActiveTrip());
+}
+
+// --- Daily vibe ---
+function updateDailyVibe() {
+  const trip = getActiveTrip();
+  const curr = trip ? (trip.currency || '$') : '$';
+  $('logCurrency').textContent = curr;
+  $('todayCurrency').textContent = curr;
+
+  if (!trip) {
+    $('todaySpent').textContent = '0';
+    $('vibeFill').style.width = '0%';
+    $('vibeFill').style.background = 'var(--green)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.noTrip;
+    $('headerTripName').textContent = 'no trip yet';
+    return;
+  }
+
+  $('headerTripName').textContent = trip.name + (trip.location ? ' · ' + trip.location : '');
+
+  const spent = getTodayTotal();
+  $('todaySpent').textContent = formatMoney(spent);
+
+  const budget = trip.dailyBudget || 0;
+  if (budget <= 0) {
+    $('vibeFill').style.width = '0%';
+    $('vibeMessage').textContent = VIBE_MESSAGES.noBudget;
+    return;
+  }
+
+  const pct = Math.min((spent / budget) * 100, 100);
+  $('vibeFill').style.width = pct + '%';
+
+  // Gentle color transitions
+  if (spent === 0) {
+    $('vibeFill').style.background = 'var(--green)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.none;
+  } else if (spent / budget <= 0.5) {
+    $('vibeFill').style.background = 'var(--green)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.low;
+  } else if (spent / budget <= 0.85) {
+    $('vibeFill').style.background = 'var(--blue)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.mid;
+  } else if (spent / budget <= 1) {
+    $('vibeFill').style.background = 'var(--amber)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.high;
+  } else {
+    $('vibeFill').style.width = '100%';
+    $('vibeFill').style.background = 'var(--rose)';
+    $('vibeMessage').textContent = VIBE_MESSAGES.over;
+  }
+
+  // Today view
+  const left = Math.max(0, budget - spent);
+  $('todayLeft').textContent = formatMoney(left);
+  $('todayVibeMsg').textContent = spent > budget
+    ? 'you went over today — it happens, no big deal'
+    : left === budget
+    ? 'full budget available — spend it however feels right'
+    : 'you\'re doing great, keep going at your own pace';
+}
+
+// --- Log expense ---
+function logExpense() {
+  const trip = getActiveTrip();
+  if (!trip || !selectedCategory) return;
+
+  const amount = parseFloat($('amountInput').value);
+  if (!amount || amount <= 0) return;
+
+  const expense = {
+    id: uid(),
+    tripId: trip.id,
+    amount: amount,
+    category: selectedCategory,
+    note: $('noteInput').value.trim() || getCategoryById(selectedCategory).label,
+    date: todayStr(),
+    timestamp: Date.now(),
+  };
+
+  state.expenses.push(expense);
+  saveState();
+
+  // Reset form
+  $('amountInput').value = '';
+  $('noteInput').value = '';
+  selectedCategory = null;
+  $('categoryGrid').querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  updateLogBtn();
+
+  const messages = [
+    'logged ✓',
+    'got it ✓',
+    'noted ✓',
+    'saved ✓',
+    'tracked ✓',
+  ];
+  showToast(messages[Math.floor(Math.random() * messages.length)]);
+
+  updateDailyVibe();
+  renderTodayExpenses();
+  renderHistory();
+  renderWeekGrid();
+}
+
+// --- Today's expenses list ---
+function renderTodayExpenses() {
+  const expenses = getTodayExpenses().sort((a, b) => b.timestamp - a.timestamp);
+  const trip = getActiveTrip();
+  const curr = trip ? (trip.currency || '$') : '$';
+  const container = $('todayExpensesList');
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="emoji">🌱</div>nothing logged today yet<br>that\'s okay</div>';
+    return;
+  }
+
+  container.innerHTML = expenses.map(e => {
+    const cat = getCategoryById(e.category);
+    const time = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="expense-item">
+        <div class="expense-emoji">${cat.emoji}</div>
+        <div class="expense-details">
+          <div class="expense-note">${escHtml(e.note)}</div>
+          <div class="expense-meta">${cat.label} · ${time}</div>
+        </div>
+        <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
+        <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.expense-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.expenses = state.expenses.filter(e => e.id !== btn.dataset.id);
+      saveState();
+      updateDailyVibe();
+      renderTodayExpenses();
+      renderHistory();
+      renderWeekGrid();
+      showToast('removed');
+    });
+  });
+}
+
+// --- Week grid ---
+function renderWeekGrid() {
+  const trip = getActiveTrip();
+  const grid = $('weekGrid');
+  if (!trip) { grid.innerHTML = ''; return; }
+
+  const today = new Date();
+  const dayNames = ['S','M','T','W','T','F','S'];
+  const budget = trip.dailyBudget || 0;
+
+  // Show Mon-Sun of current week
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayExpenses = state.expenses.filter(e => e.tripId === trip.id && e.date === dateStr);
+    const spent = dayExpenses.reduce((s, e) => s + e.amount, 0);
+    const isToday = dateStr === todayStr();
+    const isFuture = d > today;
+
+    let dotColor = 'var(--surface2)';
+    let dotText = '';
+
+    if (!isFuture && spent > 0 && budget > 0) {
+      const ratio = spent / budget;
+      if (ratio <= 0.5) dotColor = 'var(--green)';
+      else if (ratio <= 0.85) dotColor = 'var(--blue)';
+      else if (ratio <= 1) dotColor = 'var(--amber)';
+      else dotColor = 'var(--rose)';
+    }
+
+    if (!isFuture && spent > 0) {
+      dotText = Math.round(spent).toString();
+    }
+
+    html += `
+      <div class="week-day">
+        <div class="day-label">${dayNames[(i + 1) % 7]}</div>
+        <div class="day-dot" style="background: ${dotColor}; ${isToday ? 'box-shadow: 0 0 0 2px var(--accent);' : ''}">${dotText}</div>
+      </div>
+    `;
+  }
+  grid.innerHTML = html;
+}
+
+// --- History ---
+function renderHistory() {
+  const trip = getActiveTrip();
+  const container = $('historyList');
+  if (!trip) {
+    container.innerHTML = '<div class="empty"><div class="emoji">📝</div>set up a trip first</div>';
+    return;
+  }
+
+  const expenses = state.expenses
+    .filter(e => e.tripId === trip.id)
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 100);
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="emoji">📝</div>expenses will show up here<br>most recent first</div>';
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  expenses.forEach(e => {
+    if (!groups[e.date]) groups[e.date] = [];
+    groups[e.date].push(e);
+  });
+
+  const curr = trip.currency || '$';
+  let html = '';
+  Object.keys(groups).sort().reverse().forEach(date => {
+    const dayTotal = groups[date].reduce((s, e) => s + e.amount, 0);
+    const dateLabel = formatDateLabel(date);
+    html += `<div class="section-title">${dateLabel} — ${curr}${formatMoney(dayTotal)}</div><div class="card">`;
+    groups[date].forEach(e => {
+      const cat = getCategoryById(e.category);
+      const time = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      html += `
+        <div class="expense-item">
+          <div class="expense-emoji">${cat.emoji}</div>
+          <div class="expense-details">
+            <div class="expense-note">${escHtml(e.note)}</div>
+            <div class="expense-meta">${cat.label} · ${time}</div>
+          </div>
+          <div class="expense-amount">${curr}${formatMoney(e.amount)}</div>
+          <button class="expense-delete" data-id="${e.id}" title="remove">×</button>
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.expense-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.expenses = state.expenses.filter(e => e.id !== btn.dataset.id);
+      saveState();
+      updateDailyVibe();
+      renderTodayExpenses();
+      renderHistory();
+      renderWeekGrid();
+      showToast('removed');
+    });
+  });
+}
+
+function formatDateLabel(dateStr) {
+  const today = todayStr();
+  if (dateStr === today) return 'today';
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (dateStr === yesterday.toISOString().slice(0, 10)) return 'yesterday';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+// --- Trips ---
+let editingTripId = null;
+
+function renderTrips() {
+  const list = $('tripsList');
+  if (state.trips.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="emoji">🗺️</div>no trips yet<br>tap "new trip" to get started</div>';
+    return;
+  }
+
+  list.innerHTML = state.trips.map(t => {
+    const isActive = t.id === state.activeTrip;
+    const expCount = state.expenses.filter(e => e.tripId === t.id).length;
+    const totalSpent = state.expenses.filter(e => e.tripId === t.id).reduce((s, e) => s + e.amount, 0);
+    const curr = t.currency || '$';
+    return `
+      <div class="trip-card ${isActive ? 'active-trip' : ''}" data-trip-id="${t.id}">
+        <h3>${escHtml(t.name)} ${isActive ? '· active' : ''}</h3>
+        <div class="trip-meta">
+          ${t.location ? t.location + ' · ' : ''}${curr}${formatMoney(t.dailyBudget || 0)}/day · ${expCount} expenses · ${curr}${formatMoney(totalSpent)} total
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.trip-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.tripId;
+      // Single tap to activate, double tap / long press to edit
+      if (state.activeTrip === id) {
+        // Already active — open edit
+        openTripModal(id);
+      } else {
+        state.activeTrip = id;
+        saveState();
+        renderTrips();
+        updateDailyVibe();
+        renderTodayExpenses();
+        renderHistory();
+        renderWeekGrid();
+        showToast('switched trip');
+      }
+    });
+  });
+}
+
+function openTripModal(tripId = null) {
+  editingTripId = tripId;
+  const trip = tripId ? state.trips.find(t => t.id === tripId) : null;
+
+  $('tripModalTitle').textContent = trip ? 'edit trip' : 'new trip';
+  $('tripName').value = trip ? trip.name : '';
+  $('tripLocation').value = trip ? (trip.location || '') : '';
+  $('tripBudget').value = trip ? (trip.dailyBudget || '') : '';
+  $('tripCurrency').value = trip ? (trip.currency || '$') : '$';
+  $('tripDeleteRow').style.display = trip ? 'flex' : 'none';
+  $('tripModal').classList.add('show');
+}
+
+function closeTripModal() {
+  $('tripModal').classList.remove('show');
+  editingTripId = null;
+}
+
+function saveTrip() {
+  const name = $('tripName').value.trim();
+  if (!name) { showToast('give it a name'); return; }
+
+  const budget = parseFloat($('tripBudget').value) || 0;
+  const location = $('tripLocation').value.trim();
+  const currency = $('tripCurrency').value.trim() || '$';
+
+  if (editingTripId) {
+    const trip = state.trips.find(t => t.id === editingTripId);
+    if (trip) {
+      trip.name = name;
+      trip.location = location;
+      trip.dailyBudget = budget;
+      trip.currency = currency;
+    }
+  } else {
+    const trip = { id: uid(), name, location, dailyBudget: budget, currency, created: Date.now() };
+    state.trips.push(trip);
+    state.activeTrip = trip.id;
+  }
+
+  saveState();
+  closeTripModal();
+  renderTrips();
+  updateDailyVibe();
+  showToast(editingTripId ? 'trip updated' : 'trip created');
+}
+
+function deleteTrip() {
+  if (!editingTripId) return;
+  const trip = state.trips.find(t => t.id === editingTripId);
+  if (!trip) return;
+
+  // Remove trip + its expenses
+  state.expenses = state.expenses.filter(e => e.tripId !== editingTripId);
+  state.trips = state.trips.filter(t => t.id !== editingTripId);
+  if (state.activeTrip === editingTripId) {
+    state.activeTrip = state.trips.length > 0 ? state.trips[0].id : null;
+  }
+
+  saveState();
+  closeTripModal();
+  renderTrips();
+  updateDailyVibe();
+  renderTodayExpenses();
+  renderHistory();
+  renderWeekGrid();
+  showToast('trip deleted');
+}
+
+// --- Export / Import ---
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'travelbuddy-backup-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('data exported');
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (data.trips && data.expenses) {
+        state = data;
+        saveState();
+        renderAll();
+        showToast('data imported');
+      } else {
+        showToast('invalid file format');
+      }
+    } catch (e) {
+      showToast('could not read file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// --- Navigation ---
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  $(viewId).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === viewId);
+  });
+}
+
+// --- Util ---
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// --- Render all ---
+function renderAll() {
+  renderCategories();
+  updateDailyVibe();
+  renderTodayExpenses();
+  renderTrips();
+  renderHistory();
+  renderWeekGrid();
+}
+
+// --- Wire up events ---
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+$('amountInput').addEventListener('input', updateLogBtn);
+$('logBtn').addEventListener('click', logExpense);
+$('newTripBtn').addEventListener('click', () => openTripModal());
+$('tripCancelBtn').addEventListener('click', closeTripModal);
+$('tripSaveBtn').addEventListener('click', saveTrip);
+$('tripDeleteBtn').addEventListener('click', deleteTrip);
+$('exportBtn').addEventListener('click', exportData);
+$('importBtn').addEventListener('click', () => $('importFile').click());
+$('importFile').addEventListener('change', (e) => {
+  if (e.target.files[0]) importData(e.target.files[0]);
+  e.target.value = '';
+});
+
+// Close modal on overlay click
+$('tripModal').addEventListener('click', (e) => {
+  if (e.target === $('tripModal')) closeTripModal();
+});
+
+// Enter key to log
+$('amountInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); logExpense(); }
+});
+
+$('noteInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); logExpense(); }
+});
+
+// --- Init ---
+renderAll();
+</script>
+</body>
+</html>
